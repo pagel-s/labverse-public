@@ -1,0 +1,81 @@
+bundle,model,planner,category,count,n,share
+initial-state-perturbation-2,ollama/gemma4:31b,local_structured_interactive_grounded,Success,8,14,0.571429
+initial-state-perturbation-2,ollama/gemma4:31b,local_structured_interactive_grounded,Behavioral/task failure,6,14,0.428571
+initial-state-perturbation-2,ollama/gemma4:31b,local_structured_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,local_structured_interactive_grounded,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,local_structured_interactive_grounded,Provider/runner failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,local_narrative_interactive_grounded,Success,9,14,0.642857
+initial-state-perturbation-2,ollama/gemma4:31b,local_narrative_interactive_grounded,Behavioral/task failure,4,14,0.285714
+initial-state-perturbation-2,ollama/gemma4:31b,local_narrative_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,local_narrative_interactive_grounded,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,local_narrative_interactive_grounded,Provider/runner failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:31b,global_structured_interactive_grounded,Success,8,14,0.571429
+initial-state-perturbation-2,ollama/gemma4:31b,global_structured_interactive_grounded,Behavioral/task failure,5,14,0.357143
+initial-state-perturbation-2,ollama/gemma4:31b,global_structured_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,global_structured_interactive_grounded,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,global_structured_interactive_grounded,Provider/runner failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:31b,global_one_shot_planner,Success,10,14,0.714286
+initial-state-perturbation-2,ollama/gemma4:31b,global_one_shot_planner,Behavioral/task failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:31b,global_one_shot_planner,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,global_one_shot_planner,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,global_one_shot_planner,Provider/runner failure,3,14,0.214286
+initial-state-perturbation-2,ollama/gemma4:26b,local_structured_interactive_grounded,Success,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:26b,local_structured_interactive_grounded,Behavioral/task failure,10,14,0.714286
+initial-state-perturbation-2,ollama/gemma4:26b,local_structured_interactive_grounded,Format/argument failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:26b,local_structured_interactive_grounded,Grounding/interface failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:26b,local_structured_interactive_grounded,Provider/runner failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:26b,local_narrative_interactive_grounded,Success,3,14,0.214286
+initial-state-perturbation-2,ollama/gemma4:26b,local_narrative_interactive_grounded,Behavioral/task failure,7,14,0.5
+initial-state-perturbation-2,ollama/gemma4:26b,local_narrative_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:26b,local_narrative_interactive_grounded,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:26b,local_narrative_interactive_grounded,Provider/runner failure,4,14,0.285714
+initial-state-perturbation-2,ollama/gemma4:26b,global_structured_interactive_grounded,Success,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:26b,global_structured_interactive_grounded,Behavioral/task failure,11,14,0.785714
+initial-state-perturbation-2,ollama/gemma4:26b,global_structured_interactive_grounded,Format/argument failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:26b,global_structured_interactive_grounded,Grounding/interface failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:26b,global_structured_interactive_grounded,Provider/runner failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:26b,global_one_shot_planner,Success,10,14,0.714286
+initial-state-perturbation-2,ollama/gemma4:26b,global_one_shot_planner,Behavioral/task failure,3,14,0.214286
+initial-state-perturbation-2,ollama/gemma4:26b,global_one_shot_planner,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/gemma4:26b,global_one_shot_planner,Grounding/interface failure,1,14,0.071429
+initial-state-perturbation-2,ollama/gemma4:26b,global_one_shot_planner,Provider/runner failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_structured_interactive_grounded,Success,1,14,0.071429
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_structured_interactive_grounded,Behavioral/task failure,12,14,0.857143
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_structured_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_structured_interactive_grounded,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_structured_interactive_grounded,Provider/runner failure,1,14,0.071429
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_narrative_interactive_grounded,Success,4,14,0.285714
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_narrative_interactive_grounded,Behavioral/task failure,10,14,0.714286
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_narrative_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_narrative_interactive_grounded,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_narrative_interactive_grounded,Provider/runner failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_structured_interactive_grounded,Success,2,14,0.142857
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_structured_interactive_grounded,Behavioral/task failure,11,14,0.785714
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_structured_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_structured_interactive_grounded,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_structured_interactive_grounded,Provider/runner failure,1,14,0.071429
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_one_shot_planner,Success,9,14,0.642857
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_one_shot_planner,Behavioral/task failure,4,14,0.285714
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_one_shot_planner,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_one_shot_planner,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_one_shot_planner,Provider/runner failure,1,14,0.071429
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_structured_interactive_grounded,Success,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_structured_interactive_grounded,Behavioral/task failure,11,14,0.785714
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_structured_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_structured_interactive_grounded,Grounding/interface failure,1,14,0.071429
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_structured_interactive_grounded,Provider/runner failure,2,14,0.142857
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_narrative_interactive_grounded,Success,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_narrative_interactive_grounded,Behavioral/task failure,12,14,0.857143
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_narrative_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_narrative_interactive_grounded,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_narrative_interactive_grounded,Provider/runner failure,2,14,0.142857
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_structured_interactive_grounded,Success,1,14,0.071429
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_structured_interactive_grounded,Behavioral/task failure,13,14,0.928571
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_structured_interactive_grounded,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_structured_interactive_grounded,Grounding/interface failure,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_structured_interactive_grounded,Provider/runner failure,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_one_shot_planner,Success,7,14,0.5
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_one_shot_planner,Behavioral/task failure,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_one_shot_planner,Format/argument failure,0,14,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_one_shot_planner,Grounding/interface failure,1,14,0.071429
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_one_shot_planner,Provider/runner failure,6,14,0.428571

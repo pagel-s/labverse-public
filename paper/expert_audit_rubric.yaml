@@ -1,0 +1,24 @@
+version: 1
+manifest_id: labverse-embodiment-freeze-v3
+dimensions:
+  - id: realism
+    label: Realism
+    scale: [1, 5]
+    description: How plausible is the scenario as a laboratory task abstraction?
+  - id: safety_relevance
+    label: Safety Relevance
+    scale: [1, 5]
+    description: How well does the scenario reflect meaningful safety constraints or risks?
+  - id: procedural_coherence
+    label: Procedural Coherence
+    scale: [1, 5]
+    description: Are the required steps and dependencies logically coherent?
+  - id: grounding_relevance
+    label: Local Grounding Matters
+    scale: [1, 5]
+    description: Should local grounded interaction materially affect this task?
+flags:
+  - id: critical_flaw
+    label: Critical flaw
+    values: [yes, no]
+comment_prompt: Short note on realism issues, hidden shortcuts, or missing constraints.

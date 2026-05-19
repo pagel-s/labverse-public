@@ -1,0 +1,38 @@
+equipment_types:
+  - equipment_type: incubator
+    description: CO2 incubator for long-running sample storage and growth
+    state_machine: incubator
+    commands:
+      incubate:
+        name: incubate
+        description: Maintain samples under configured incubation conditions
+        duration_seconds: 43200
+        preconditions: [state:ready]
+    properties:
+      temperature_celsius:
+        name: temperature_celsius
+        description: Chamber temperature
+        param_type: float
+        unit: C
+        min_value: 20
+        max_value: 45
+        default_value: 37.0
+        current_value: 37.0
+      co2_percent:
+        name: co2_percent
+        description: Carbon dioxide concentration
+        param_type: float
+        unit: percent
+        min_value: 0
+        max_value: 20
+        default_value: 5.0
+        current_value: 5.0
+      humidity_percent:
+        name: humidity_percent
+        description: Relative humidity
+        param_type: float
+        unit: percent
+        min_value: 0
+        max_value: 100
+        default_value: 95.0
+        current_value: 95.0

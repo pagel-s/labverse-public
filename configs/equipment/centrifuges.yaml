@@ -1,0 +1,58 @@
+equipment_types:
+  - equipment_type: centrifuge
+    description: Refrigerated benchtop centrifuge
+    state_machine: centrifuge
+    commands:
+      spin:
+        name: spin
+        description: Spin a balanced rotor at a configured speed
+        duration_seconds: 600
+        preconditions: [state:ready]
+        parameters:
+          - name: speed_rpm
+            description: Rotor speed
+            param_type: int
+            unit: rpm
+            min_value: 100
+            max_value: 15000
+          - name: duration_seconds
+            description: Spin duration
+            param_type: float
+            unit: s
+            min_value: 1
+            max_value: 7200
+          - name: temperature_celsius
+            description: Chamber temperature
+            param_type: float
+            unit: C
+            min_value: -10
+            max_value: 40
+            default_value: 4.0
+    properties:
+      speed_rpm:
+        name: speed_rpm
+        description: Current rotor speed
+        param_type: int
+        unit: rpm
+        min_value: 100
+        max_value: 15000
+        default_value: 1000
+        current_value: 1000
+      rcf_g:
+        name: rcf_g
+        description: Relative centrifugal force
+        param_type: int
+        unit: g
+        min_value: 100
+        max_value: 21000
+        default_value: 1000
+        current_value: 1000
+      temperature_celsius:
+        name: temperature_celsius
+        description: Chamber temperature
+        param_type: float
+        unit: C
+        min_value: -10
+        max_value: 40
+        default_value: 4.0
+        current_value: 4.0

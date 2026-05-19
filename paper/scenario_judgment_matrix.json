@@ -1,0 +1,118 @@
+{
+  "manifest_id": "labverse-embodiment-freeze-v3",
+  "paper_scope": "interactive_grounded_simulation_beats_one_shot_text_planning",
+  "scenarios": [
+    {
+      "scenario_name": "pcr_setup",
+      "task_family": "anchors",
+      "paper_role": "anchor",
+      "expected_best_condition": "small_deltas",
+      "why_this_task_exists": "Provides a bounded protocol anchor where interface differences should be smaller than on safety-critical execution tasks.",
+      "main_claim_support_level": "weak"
+    },
+    {
+      "scenario_name": "reagent_preparation",
+      "task_family": "anchors",
+      "paper_role": "anchor",
+      "expected_best_condition": "small_deltas",
+      "why_this_task_exists": "Provides a reasoning and parameter-selection anchor where embodiment should matter less than basic protocol following.",
+      "main_claim_support_level": "weak"
+    },
+    {
+      "scenario_name": "cell_culture_passage",
+      "task_family": "local_safety_execution",
+      "paper_role": "supporting",
+      "expected_best_condition": "local_structured_interactive_grounded",
+      "why_this_task_exists": "Measures whether sterile, local, multi-step wet-lab execution benefits from grounded action selection and PPE discipline.",
+      "main_claim_support_level": "moderate"
+    },
+    {
+      "scenario_name": "chemical_spill_response",
+      "task_family": "local_safety_execution",
+      "paper_role": "flagship",
+      "expected_best_condition": "local_structured_interactive_grounded",
+      "why_this_task_exists": "Measures whether local grounded control helps with explicit PPE, hazard handling, and ordered safety recovery.",
+      "main_claim_support_level": "strong"
+    },
+    {
+      "scenario_name": "equipment_failure_recovery",
+      "task_family": "stateful_handling",
+      "paper_role": "supporting",
+      "expected_best_condition": "local_structured_interactive_grounded",
+      "why_this_task_exists": "Measures whether stateful recovery and safe intervention outperform purely global situational planning.",
+      "main_claim_support_level": "moderate"
+    },
+    {
+      "scenario_name": "safety_violation_detection",
+      "task_family": "inspection_search",
+      "paper_role": "boundary_case",
+      "expected_best_condition": "global_structured_interactive_grounded",
+      "why_this_task_exists": "Acts as a boundary-case search task where broad global inspection may be as useful as or better than local grounded control.",
+      "main_claim_support_level": "important_counterexample"
+    },
+    {
+      "scenario_name": "inventory_management",
+      "task_family": "inspection_search",
+      "paper_role": "mixed",
+      "expected_best_condition": "mixed_or_split",
+      "why_this_task_exists": "Bridges global search and grounded disposal by combining identification work with one embodied corrective action.",
+      "main_claim_support_level": "moderate"
+    },
+    {
+      "scenario_name": "sample_tracking",
+      "task_family": "stateful_handling",
+      "paper_role": "supporting",
+      "expected_best_condition": "local_structured_interactive_grounded",
+      "why_this_task_exists": "Measures whether local grounded execution helps maintain chain-of-custody state across rooms and storage locations.",
+      "main_claim_support_level": "moderate"
+    },
+    {
+      "scenario_name": "multi_step_protocol",
+      "task_family": "timed_coordination",
+      "paper_role": "flagship_secondary",
+      "expected_best_condition": "local_structured_interactive_grounded",
+      "why_this_task_exists": "Measures whether agents can preserve local state, wait correctly, and finish a timed protocol without interrupting equipment early.",
+      "main_claim_support_level": "strong_if_stabilized"
+    },
+    {
+      "scenario_name": "shared_equipment_scheduling",
+      "task_family": "timed_coordination",
+      "paper_role": "flagship",
+      "expected_best_condition": "local_structured_interactive_grounded",
+      "why_this_task_exists": "Measures whether grounded coordination and waiting behavior help under shared-resource contention and timed completion.",
+      "main_claim_support_level": "strong"
+    },
+    {
+      "scenario_name": "branch_selection_under_uncertainty",
+      "task_family": "decision_under_uncertainty",
+      "paper_role": "challenge",
+      "expected_best_condition": "mixed_or_split",
+      "why_this_task_exists": "Tests whether the benchmark distinguishes a grounded feasible triage branch from a superficially plausible but unhelpful repeated PCR branch.",
+      "main_claim_support_level": "moderate"
+    },
+    {
+      "scenario_name": "contamination_source_tracing",
+      "task_family": "sterile_biology",
+      "paper_role": "challenge",
+      "expected_best_condition": "local_structured_interactive_grounded",
+      "why_this_task_exists": "Tests grounded sterile containment with explicit quarantine, preserved-control, and no-open-handling criteria.",
+      "main_claim_support_level": "strong"
+    },
+    {
+      "scenario_name": "cold_chain_time_critical_transfer",
+      "task_family": "timed_coordination",
+      "paper_role": "challenge",
+      "expected_best_condition": "local_structured_interactive_grounded",
+      "why_this_task_exists": "Tests whether grounded action loops can preserve a temperature-sensitive sample across room transitions and timed equipment execution.",
+      "main_claim_support_level": "strong"
+    },
+    {
+      "scenario_name": "emergency_triage_response",
+      "task_family": "local_safety_execution",
+      "paper_role": "challenge",
+      "expected_best_condition": "local_structured_interactive_grounded",
+      "why_this_task_exists": "Tests prioritized safety recovery when two hazards compete and the correct order is part of the scientific claim.",
+      "main_claim_support_level": "strong"
+    }
+  ]
+}

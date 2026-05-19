@@ -1,0 +1,385 @@
+manifest_id: labverse-embodiment-freeze-v3
+paper_scope: interactive_grounded_simulation_beats_one_shot_text_planning
+scenarios:
+  - scenario_name: pcr_setup
+    canonical_success_path:
+      - Don basic wet-lab PPE.
+      - Move to main_wet_lab and transfer PCR master mix into pcr_reaction_1.
+      - Start pcr_1 with the declared run_program parameters.
+    full_success_criteria:
+      - detail_key: master_mix_transferred
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: program_parameters_correct
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: thermocycler_started
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Start pcr_1 with incorrect thermal parameters.
+      - Omit the master-mix transfer and only start the thermocycler.
+    condition_visibility_note: "No paper condition should have a material informational advantage beyond representation."
+
+  - scenario_name: reagent_preparation
+    canonical_success_path:
+      - Don basic wet-lab PPE.
+      - Move to wet_lab and prepare the dilution using the correct source, destination, and volume.
+      - Record the required label or preparation note.
+    full_success_criteria:
+      - detail_key: correct_volume
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: stock_consumed_correctly
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: labels_logged
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Transfer the wrong volume.
+      - Skip the labeling note after the mixture is prepared.
+    condition_visibility_note: "This is an anchor task where condition deltas should remain comparatively small."
+
+  - scenario_name: cell_culture_passage
+    canonical_success_path:
+      - Don BSL-2 PPE before entering tissue_culture.
+      - Start sterile cabinet work in bsc_1.
+      - Handle the culture and restore it to incubator_1.
+    full_success_criteria:
+      - detail_key: sterile_work_started
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: sample_handled
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: sample_restored_to_incubator
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Enter tissue_culture without BSL-2 PPE.
+      - Move the sample without starting sterile work.
+    condition_visibility_note: "Local grounded control should help because the sterile workflow is room-local and safety-constrained."
+
+  - scenario_name: chemical_spill_response
+    canonical_success_path:
+      - Don basic wet-lab PPE and reach chemical_storage.
+      - Don nitrile_gloves, face_shield, and chemical_apron before disposal.
+      - Dispose hcl_conc in spill_hood and log the incident.
+    full_success_criteria:
+      - detail_key: material_removed
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: protective_sequence_correct
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: incident_logged
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Attempt disposal before corrosive PPE is complete.
+      - Dispose the spill without logging the incident.
+    condition_visibility_note: "Local grounded control should matter because blocked actions and PPE sequencing are part of the visible loop."
+
+  - scenario_name: equipment_failure_recovery
+    canonical_success_path:
+      - Stop the failed centrifuge safely.
+      - Recover the sample.
+      - Log the recovery incident.
+    full_success_criteria:
+      - detail_key: equipment_stopped
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: sample_recovered
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: incident_logged
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Leave the equipment in the error state and only log the incident.
+      - Stop the equipment but leave the sample behind.
+    condition_visibility_note: "Recovery is stateful but locally visible; no condition should rely on hidden state."
+
+  - scenario_name: safety_violation_detection
+    canonical_success_path:
+      - Inspect the relevant rooms that can contain planted violations.
+      - Record findings that identify all planted violations with no false positives.
+    full_success_criteria:
+      - detail_key: recall
+        expected_value: 1.0
+        evidence_source: derived_metric
+      - detail_key: precision
+        expected_value: 1.0
+        evidence_source: derived_metric
+      - detail_key: found_all_violations
+        expected_value: true
+        evidence_source: semantic_note
+    timed_processes: []
+    plausible_wrong_branches:
+      - Inspect only one room and infer the rest.
+      - Log speculative violations that were not actually planted.
+    condition_visibility_note: "This is the intended boundary case where global structured access may legitimately help search."
+
+  - scenario_name: inventory_management
+    canonical_success_path:
+      - Inspect the relevant storage areas.
+      - Identify the expired item and the incompatibility issue.
+      - Remove the expired item through the grounded disposal path.
+    full_success_criteria:
+      - detail_key: expired_item_removed
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: expiry_identified
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: incompatibility_identified
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Use the expired item instead of disposing it.
+      - Identify one issue but not the other.
+    condition_visibility_note: "This is intentionally mixed: global search can help, but corrective action must still be grounded."
+
+  - scenario_name: sample_tracking
+    canonical_success_path:
+      - Retrieve the incoming sample.
+      - Move it through the required rooms without teleporting or losing custody.
+      - Log accession or custody completion and place the sample in the correct final location.
+    full_success_criteria:
+      - detail_key: custody_complete
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: accession_logged
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: final_location_correct
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Move the sample without the custody note.
+      - End with the sample in the wrong room or equipment.
+    condition_visibility_note: "The chain-of-custody state is grounded and local; no condition should need hidden information."
+
+  - scenario_name: multi_step_protocol
+    canonical_success_path:
+      - Start the protocol hold.
+      - Allow the timed step to complete.
+      - Store the sample correctly between stages and finish the protocol.
+    full_success_criteria:
+      - detail_key: hold_started
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: timed_completion_fired
+        expected_value: true
+        evidence_source: timed_event
+      - detail_key: sample_stored_between_steps
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: protocol_completed
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Interrupt the timed step early.
+      - Skip the intermediate storage transition.
+    condition_visibility_note: "Timed completion and orderly storage are visible in the iterative loop; no scorer-only progress should leak."
+
+  - scenario_name: shared_equipment_scheduling
+    canonical_success_path:
+      - Equip all three technicians with basic wet-lab PPE and move them to wet_lab.
+      - Coordinate exactly one centrifuge_1 spin for each technician without conflicts.
+      - Allow all timed runs to complete and leave centrifuge_1 idle.
+    full_success_criteria:
+      - detail_key: every_agent_processed
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: conflict_free
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: timed_completions
+        expected_value: 3.0
+        evidence_source: timed_event
+      - detail_key: centrifuge_available_at_end
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes:
+      - equipment_id: centrifuge_1
+        command_name: spin
+        expected_duration_seconds: 20.0
+        completion_event_required: true
+    plausible_wrong_branches:
+      - Start centrifuge_1 twice for the same technician.
+      - Attempt overlapping runs and rely on blocked starts.
+    condition_visibility_note: "Team coordination is a documented special case; the team action surface is the only intended schema asymmetry."
+
+  - scenario_name: branch_selection_under_uncertainty
+    canonical_success_path:
+      - Don basic PPE and move to main_wet_lab.
+      - Retrieve triage_sample_1, load it into centrifuge_1, and complete one 4 C centrifuge run.
+      - Avoid the repeated PCR branch, preserve legacy_pcr_mix, and log the triage rationale.
+    full_success_criteria:
+      - detail_key: scarce_instrument_used_once
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: triage_sample_loaded
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: sample_loaded_before_spin
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: centrifuge_completed
+        expected_value: true
+        evidence_source: timed_event
+      - detail_key: avoided_pcr_repeat
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: rationale_logged
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: legacy_reagent_preserved
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes:
+      - equipment_id: centrifuge_1
+        command_name: spin
+        expected_duration_seconds: 20.0
+        completion_event_required: true
+    plausible_wrong_branches:
+      - Start centrifuge_1 before loading triage_sample_1.
+      - Repeat the PCR branch and consume legacy_pcr_mix.
+    condition_visibility_note: "The challenge is branch choice and stopping discipline, not hidden timing or scorer-only state."
+
+  - scenario_name: contamination_source_tracing
+    canonical_success_path:
+      - Don BSL-2 PPE and enter tissue_culture.
+      - Retrieve hela_exposed_1 and store it in quarantine_zone.
+      - Leave hela_control_1 undisturbed in incubator_1 and log the tracing note.
+    full_success_criteria:
+      - detail_key: exposed_quarantined
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: control_preserved
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: quarantine_logged
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: no_unsafe_transfer
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Move hela_control_1 out of incubator_1.
+      - Use pipette_transfer on the suspect or control culture instead of quarantine.
+    condition_visibility_note: "The preserved control and quarantine action must be justified by visible state, not hidden contamination labels."
+
+  - scenario_name: cold_chain_time_critical_transfer
+    canonical_success_path:
+      - Retrieve enzyme_aliquot_1 from cold_room and move it to main_wet_lab.
+      - Store it in centrifuge_1, complete a 4 C spin, and retrieve it after completion.
+      - Return it to cold_room within the warm-exposure budget and log the cold-chain completion.
+    full_success_criteria:
+      - detail_key: cold_spin_started
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: timed_completion_fired
+        expected_value: true
+        evidence_source: timed_event
+      - detail_key: returned_to_cold_room
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: cold_chain_within_budget
+        expected_value: true
+        evidence_source: derived_metric
+      - detail_key: cold_chain_logged
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: centrifuge_available
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes:
+      - equipment_id: centrifuge_1
+        command_name: spin
+        expected_duration_seconds: 20.0
+        completion_event_required: true
+    plausible_wrong_branches:
+      - Re-spin the sample instead of returning it to cold_room.
+      - Return the sample correctly but exceed the warm-exposure budget.
+    condition_visibility_note: "The critical facts are visible through room state, timed completion, and the declared warm-budget rule."
+
+  - scenario_name: emergency_triage_response
+    canonical_success_path:
+      - Stabilize the active centrifuge hazard first.
+      - Recover pellet_urgent_1 from centrifuge_1.
+      - Don chemical PPE, dispose hcl_conc in spill_hood, and log the incident sequence.
+    full_success_criteria:
+      - detail_key: equipment_stabilized
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: sample_recovered
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: spill_disposed
+        expected_value: true
+        evidence_source: world_state
+      - detail_key: triage_order_correct
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: incidents_logged
+        expected_value: true
+        evidence_source: semantic_note
+      - detail_key: no_extra_disposals
+        expected_value: true
+        evidence_source: event_log
+      - detail_key: no_safety_violations
+        expected_value: true
+        evidence_source: event_log
+    timed_processes: []
+    plausible_wrong_branches:
+      - Dispose hcl_conc before stabilizing centrifuge_1.
+      - Recover the pellet but skip the spill documentation.
+    condition_visibility_note: "The scenario is intentionally about visible hazard ordering, not hidden prioritization hints."

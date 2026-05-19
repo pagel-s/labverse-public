@@ -1,0 +1,35 @@
+site_name: LabVerse Publication Artifact
+site_description: Reproduction docs for the LabVerse grounded-interaction benchmark artifact.
+site_url: https://pagel-s.github.io/labverse-public/
+repo_url: https://github.com/pagel-s/labverse-public
+repo_name: pagel-s/labverse-public
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Reproduce: reproduce.md
+  - Inspect Traces: inspect.md
+  - Figures: figures.md
+  - Figure Style: figure-style.md
+  - CLI Reference: cli-reference.md

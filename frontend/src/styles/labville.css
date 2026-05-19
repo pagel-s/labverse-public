@@ -1,0 +1,818 @@
+/* ============================================================
+ * LabVille — the spatial digital twin specimen
+ *
+ * The Phaser canvas is the centrepiece of the entire product.
+ * Every surface around it is hairline paper chrome whose only
+ * job is to frame the dark stage and surface controls without
+ * competing for attention.
+ *
+ * No gradients. No drop shadows. No soft 18-24px radii. The
+ * stage is the only inverse-paper surface in the layout — it
+ * earns the contrast because it IS the specimen.
+ * ============================================================ */
+
+.labville-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+  gap: var(--space-4);
+  height: 100%;
+  min-height: 0;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.labville-layout--console-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.labville-stage-shell,
+.labville-console {
+  min-height: 0;
+}
+
+.labville-stage-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* ── Mode bar (specimen label + run vitals) ────────────── */
+
+.labville-mode-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-5);
+  align-items: end;
+  padding: 0 0 var(--space-3);
+  border-bottom: var(--hairline) solid var(--rule);
+}
+
+.labville-mode-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.labville-mode-kicker {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-allcaps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.labville-mode-copy h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-display);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.labville-mode-copy p {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--ink-3);
+  line-height: var(--leading-snug);
+  font-size: var(--text-sm);
+}
+
+.labville-mode-metrics {
+  display: flex;
+  gap: var(--space-5);
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.labville-mode-metrics > div {
+  display: grid;
+  gap: 2px;
+  min-width: 5rem;
+}
+
+.labville-mode-metric--signals {
+  min-width: 11rem;
+}
+
+.labville-mode-metrics span {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-allcaps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.labville-mode-metrics strong {
+  font-family: var(--font-mono);
+  font-feature-settings: var(--feat-tabular);
+  color: var(--ink);
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+/* ── Stage frame (dark specimen) ───────────────────────── */
+
+.labville-stage-frame {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.labville-container {
+  flex: 1;
+  min-height: clamp(560px, 70vh, 820px);
+  overflow: hidden;
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius-2);
+  background: var(--paper-inverse);
+  position: relative;
+}
+
+.labville-container canvas {
+  display: block;
+  touch-action: none;
+}
+
+.labville-stage-help {
+  display: none;
+}
+
+.labville-stage-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) 0 0;
+  color: var(--ink-3);
+  font-size: var(--text-sm);
+}
+
+.labville-stage-toolbar-copy {
+  min-width: 0;
+}
+
+.labville-stage-toolbar-copy span {
+  display: block;
+  line-height: var(--leading-snug);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+}
+
+.labville-stage-toolbar-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* ── Console (right rail) ──────────────────────────────── */
+
+.labville-console {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius-2);
+  background: var(--paper-raised);
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.labville-console--collapsed {
+  overflow: hidden;
+  justify-content: space-between;
+  padding: var(--space-3);
+}
+
+.labville-console-toggle {
+  width: 100%;
+}
+
+.labville-console-rail {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+  text-align: center;
+}
+
+.labville-console-rail-kicker {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-allcaps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.labville-console-rail strong {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: var(--text-base);
+  line-height: var(--leading-snug);
+  font-weight: 500;
+}
+
+.labville-console-rail .badge {
+  justify-self: center;
+}
+
+.labville-console-rail-button {
+  width: 100%;
+}
+
+/* ── Console hero & sections ───────────────────────────── */
+
+.labville-console-hero,
+.labville-console-section {
+  display: grid;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: var(--hairline) solid var(--rule-soft);
+}
+
+.labville-console-hero:last-child,
+.labville-console-section:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.labville-console-hero {
+  gap: var(--space-2);
+}
+
+.labville-console-topline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.labville-console-kicker {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-allcaps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.labville-console-hero h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  color: var(--ink);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+}
+
+.labville-console-hero p {
+  margin: 0;
+  color: var(--ink-3);
+  line-height: var(--leading-base);
+  font-size: var(--text-sm);
+}
+
+/* ── Tabs ──────────────────────────────────────────────── */
+
+.labville-tabbar {
+  display: inline-flex;
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius-2);
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+
+.labville-tabbar button {
+  appearance: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.42rem 0.8rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background var(--motion-fast), color var(--motion-fast);
+}
+
+.labville-tabbar button + button {
+  border-left: var(--hairline) solid var(--rule);
+}
+
+.labville-tabbar button:hover {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+
+.labville-tabbar button.active {
+  background: var(--accent-1);
+  color: var(--accent-1-ink);
+}
+
+.labville-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* ── Sections ──────────────────────────────────────────── */
+
+.labville-section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.labville-section-head strong {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+
+.labville-section-head p {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: var(--text-xs);
+  line-height: var(--leading-base);
+}
+
+/* ── Action / blocked / event lists ────────────────────── */
+
+.labville-action-list,
+.labville-blocked-list,
+.labville-event-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.labville-action-card,
+.labville-blocked-card {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-top: var(--hairline) solid var(--rule-soft);
+  border-radius: 0;
+  background: transparent;
+  padding: var(--space-3) 0;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: flex-start;
+  cursor: pointer;
+  transition: background var(--motion-fast);
+}
+
+.labville-action-card:first-child,
+.labville-blocked-card:first-child {
+  border-top: 0;
+}
+
+.labville-action-card:hover:enabled,
+.labville-blocked-card:hover:enabled {
+  background: var(--paper-sunken);
+}
+
+.labville-action-card:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.labville-action-card strong,
+.labville-blocked-card strong {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-bottom: 2px;
+  line-height: var(--leading-snug);
+}
+
+.labville-action-card p,
+.labville-blocked-card p,
+.labville-callout p,
+.labville-event-row p {
+  margin: 0;
+  color: var(--ink-3);
+  line-height: var(--leading-base);
+  font-size: var(--text-xs);
+}
+
+.labville-action-id,
+.labville-route-path {
+  display: inline-flex;
+  margin-top: var(--space-1);
+  font-family: var(--font-mono);
+  font-feature-settings: var(--feat-tabular);
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+  word-break: break-word;
+}
+
+/* Status hints — leading dots, never side stripes. */
+.labville-action-card-ready,
+.labville-action-card-needs-console,
+.labville-action-card-blocked {
+  position: relative;
+  padding-left: var(--space-4);
+}
+
+.labville-action-card-ready::before,
+.labville-action-card-needs-console::before,
+.labville-action-card-blocked::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(var(--space-3) + 0.55em);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.labville-action-card-ready::before          { background: var(--ok); }
+.labville-action-card-needs-console::before  { background: var(--warn); }
+.labville-action-card-blocked::before        { background: var(--danger); }
+
+/* ── Callouts (warn / surface / route) ─────────────────── */
+
+.labville-callout {
+  padding: var(--space-3) var(--space-4);
+  border: var(--hairline) solid var(--warn-line);
+  border-radius: var(--radius-2);
+  background: var(--warn-soft);
+}
+
+.labville-callout strong {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--warn);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.labville-surface-callout,
+.labville-route-callout {
+  border-color: var(--rule);
+  background: var(--paper-sunken);
+}
+
+.labville-surface-callout strong,
+.labville-route-callout strong {
+  color: var(--ink);
+}
+
+.labville-banner-meta {
+  display: inline-flex;
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-feature-settings: var(--feat-tabular);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: inherit;
+  opacity: 0.78;
+}
+
+/* ── Result banner / status badges ─────────────────────── */
+
+.result-banner-pending {
+  background: var(--warn-soft);
+  border-color: var(--warn-line);
+  color: var(--warn);
+}
+
+.badge.tone-executing {
+  background: var(--warn-soft);
+  border-color: var(--warn-line);
+  color: var(--warn);
+}
+
+.badge.tone-resolved {
+  background: var(--ok-soft);
+  border-color: var(--ok-line);
+  color: var(--ok);
+}
+
+.badge.tone-blocked,
+.badge.tone-failed {
+  background: var(--danger-soft);
+  border-color: var(--danger-line);
+  color: var(--danger);
+}
+
+.labville-blocked-card {
+  background: transparent;
+}
+
+.labville-blocked-head,
+.labville-event-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.labville-surface-groups {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.labville-action-group {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.labville-action-group-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: baseline;
+  padding-bottom: var(--space-1);
+  border-bottom: var(--hairline) solid var(--rule-soft);
+}
+
+.labville-action-group-head strong {
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+
+/* ── Detail grid (key/value definition pairs) ──────────── */
+
+.labville-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.labville-detail-grid > div {
+  padding: var(--space-2) 0;
+  border-top: var(--hairline) solid var(--rule-soft);
+}
+
+.labville-detail-grid > div:nth-child(-n + 2) {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.labville-detail-grid span {
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-allcaps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.labville-detail-grid strong {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-feature-settings: var(--feat-tabular);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: var(--leading-base);
+  word-break: break-word;
+}
+
+.labville-inline-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-1);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.labville-inline-button:hover {
+  color: var(--accent-1-strong);
+}
+
+/* ── Mini chips ────────────────────────────────────────── */
+
+.labville-mini-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.labville-mini-chip {
+  border: var(--hairline) solid var(--rule);
+  background: var(--paper-sunken);
+  border-radius: var(--radius-1);
+  padding: 0.22rem 0.5rem;
+  font-family: var(--font-mono);
+  font-feature-settings: var(--feat-tabular);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.labville-mini-chip-running {
+  background: var(--ok-soft);
+  border-color: var(--ok-line);
+  color: var(--ok);
+}
+
+.labville-mini-chip-attention {
+  background: var(--danger-soft);
+  border-color: var(--danger-line);
+  color: var(--danger);
+}
+
+.labville-mini-chip-ready {
+  background: var(--accent-1-soft);
+  border-color: var(--accent-1-line);
+  color: var(--accent-1);
+}
+
+.labville-mini-chip-idle {
+  background: var(--paper-sunken);
+  border-color: var(--rule);
+  color: var(--ink-3);
+}
+
+/* ── Event rows ────────────────────────────────────────── */
+
+.labville-event-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.labville-event-row {
+  padding: var(--space-3) 0;
+  border-top: var(--hairline) solid var(--rule-soft);
+}
+
+.labville-event-row:first-child {
+  border-top: 0;
+}
+
+.labville-event-meta span {
+  font-family: var(--font-mono);
+  font-feature-settings: var(--feat-tabular);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.labville-event-meta strong {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* ── Empty / loading state ─────────────────────────────── */
+
+.labville-empty {
+  height: 100%;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--ink-3);
+  background: var(--paper-sunken);
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+}
+
+.labville-empty__inner {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 42ch;
+}
+
+/* Hairline scrollbar inside the console. */
+.labville-console::-webkit-scrollbar {
+  width: 6px;
+}
+
+.labville-console::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border-radius: var(--radius-pill);
+}
+
+.labville-console::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
+@media (max-width: 1180px) {
+  .labville-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .labville-layout--console-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .labville-console {
+    max-height: 540px;
+  }
+}
+
+@media (max-width: 860px) {
+  .labville-mode-bar {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .labville-mode-metrics {
+    justify-content: flex-start;
+    gap: var(--space-4);
+  }
+
+  .labville-stage-toolbar,
+  .labville-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .labville-stage-toolbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .labville-layout {
+    gap: var(--space-3);
+    height: auto;
+    overflow: visible;
+  }
+
+  .labville-container {
+    min-height: 460px;
+  }
+
+  .labville-stage-shell {
+    min-height: auto;
+  }
+
+  .labville-mode-copy p {
+    display: none;
+  }
+
+  .labville-mode-metric--signals {
+    display: none;
+  }
+
+  .labville-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .labville-detail-grid > div:nth-child(2) {
+    border-top: var(--hairline) solid var(--rule-soft);
+    padding-top: var(--space-2);
+  }
+
+  .labville-stage-toolbar-copy {
+    display: none;
+  }
+
+  .labville-stage-toolbar-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .labville-stage-toolbar-actions > button {
+    flex: 1;
+  }
+}

@@ -1,0 +1,15 @@
+bundle,scenario_label,scenario,successes,n,success_rate
+initial-state-perturbation-2,S6,safety_violation_detection,0,16,0.0
+initial-state-perturbation-2,S11,branch_selection_under_uncertainty,1,16,0.0625
+initial-state-perturbation-2,S12,contamination_source_tracing,3,16,0.1875
+initial-state-perturbation-2,S2,reagent_preparation,4,16,0.25
+initial-state-perturbation-2,S9,multi_step_protocol,4,16,0.25
+initial-state-perturbation-2,S5,equipment_failure_recovery,5,16,0.3125
+initial-state-perturbation-2,S7,inventory_management,5,16,0.3125
+initial-state-perturbation-2,S13,cold_chain_time_critical_transfer,5,16,0.3125
+initial-state-perturbation-2,S8,sample_tracking,6,16,0.375
+initial-state-perturbation-2,S10,shared_equipment_scheduling,6,16,0.375
+initial-state-perturbation-2,S14,emergency_triage_response,6,16,0.375
+initial-state-perturbation-2,S1,pcr_setup,8,16,0.5
+initial-state-perturbation-2,S3,cell_culture_passage,10,16,0.625
+initial-state-perturbation-2,S4,chemical_spill_response,10,16,0.625

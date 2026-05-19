@@ -1,0 +1,67 @@
+{
+  "bundle_id": "initial-state-reference",
+  "completed_at": "2026-04-27T11:36:35.647624",
+  "condition": "local_structured_interactive_grounded",
+  "details": {
+    "artifact_integrity_errors": 1,
+    "artifact_integrity_traceback": "Traceback (most recent call last):\n  File \"<repo-root>/src/labverse/benchmarks/runner.py\", line 93, in run_scenario_capture\n    world = scenario_obj.configured_world()\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/benchmarks/scenarios/base.py\", line 76, in configured_world\n    return self.setup(self.build_base_world())\n                      ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/benchmarks/scenarios/base.py\", line 73, in build_base_world\n    return load_world(CONFIGS_DIR / self.lab_config_name)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/config/loader.py\", line 80, in load_world\n    equipment_catalog = _load_adjacent_catalog(config_path, equipment_catalog_dir)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/config/loader.py\", line 99, in _load_adjacent_catalog\n    return load_equipment_catalog(inferred_dir)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/equipment/catalog.py\", line 63, in load_equipment_catalog\n    definitions = _load_equipment_catalog_cached(str(directory.resolve()), signature)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/equipment/catalog.py\", line 90, in _load_equipment_catalog_cached\n    for definition in _load_catalog_file(path):\n                      ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/equipment/catalog.py\", line 97, in _load_catalog_file\n    raw_data = yaml.load(\n               ^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/__init__.py\", line 81, in load\n    return loader.get_single_data()\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/constructor.py\", line 49, in get_single_data\n    node = self.get_single_node()\n           ^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 36, in get_single_node\n    document = self.compose_document()\n               ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 55, in compose_document\n    node = self.compose_node(None, None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 84, in compose_node\n    node = self.compose_mapping_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 133, in compose_mapping_node\n    item_value = self.compose_node(node, item_key)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 82, in compose_node\n    node = self.compose_sequence_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 111, in compose_sequence_node\n    node.value.append(self.compose_node(node, index))\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 84, in compose_node\n    node = self.compose_mapping_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 133, in compose_mapping_node\n    item_value = self.compose_node(node, item_key)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 84, in compose_node\n    node = self.compose_mapping_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 133, in compose_mapping_node\n    item_value = self.compose_node(node, item_key)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 84, in compose_node\n    node = self.compose_mapping_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 127, in compose_mapping_node\n    while not self.check_event(MappingEndEvent):\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/parser.py\", line 98, in check_event\n    self.current_event = self.state()\n                         ^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/parser.py\", line 428, in parse_block_mapping_key\n    if self.check_token(KeyToken):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/scanner.py\", line 116, in check_token\n    self.fetch_more_tokens()\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/scanner.py\", line 218, in fetch_more_tokens\n    if ch == '?' and self.check_key():\n       ^^^^^^^^^\nTypeError: unsupported operand type(s) for +: 'SafeLoader' and 'str'\n",
+    "runner_error": "unsupported operand type(s) for +: 'SafeLoader' and 'str'",
+    "runner_traceback": "Traceback (most recent call last):\n  File \"<repo-root>/src/labverse/benchmarks/runner.py\", line 93, in run_scenario_capture\n    world = scenario_obj.configured_world()\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/benchmarks/scenarios/base.py\", line 76, in configured_world\n    return self.setup(self.build_base_world())\n                      ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/benchmarks/scenarios/base.py\", line 73, in build_base_world\n    return load_world(CONFIGS_DIR / self.lab_config_name)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/config/loader.py\", line 80, in load_world\n    equipment_catalog = _load_adjacent_catalog(config_path, equipment_catalog_dir)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/config/loader.py\", line 99, in _load_adjacent_catalog\n    return load_equipment_catalog(inferred_dir)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/equipment/catalog.py\", line 63, in load_equipment_catalog\n    definitions = _load_equipment_catalog_cached(str(directory.resolve()), signature)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/equipment/catalog.py\", line 90, in _load_equipment_catalog_cached\n    for definition in _load_catalog_file(path):\n                      ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/src/labverse/equipment/catalog.py\", line 97, in _load_catalog_file\n    raw_data = yaml.load(\n               ^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/__init__.py\", line 81, in load\n    return loader.get_single_data()\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/constructor.py\", line 49, in get_single_data\n    node = self.get_single_node()\n           ^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 36, in get_single_node\n    document = self.compose_document()\n               ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 55, in compose_document\n    node = self.compose_node(None, None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 84, in compose_node\n    node = self.compose_mapping_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 133, in compose_mapping_node\n    item_value = self.compose_node(node, item_key)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 82, in compose_node\n    node = self.compose_sequence_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 111, in compose_sequence_node\n    node.value.append(self.compose_node(node, index))\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 84, in compose_node\n    node = self.compose_mapping_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 133, in compose_mapping_node\n    item_value = self.compose_node(node, item_key)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 84, in compose_node\n    node = self.compose_mapping_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 133, in compose_mapping_node\n    item_value = self.compose_node(node, item_key)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 84, in compose_node\n    node = self.compose_mapping_node(anchor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/composer.py\", line 127, in compose_mapping_node\n    while not self.check_event(MappingEndEvent):\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/parser.py\", line 98, in check_event\n    self.current_event = self.state()\n                         ^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/parser.py\", line 428, in parse_block_mapping_key\n    if self.check_token(KeyToken):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/scanner.py\", line 116, in check_token\n    self.fetch_more_tokens()\n  File \"<repo-root>/.venv/lib/python3.11/site-packages/yaml/scanner.py\", line 218, in fetch_more_tokens\n    if ch == '?' and self.check_key():\n       ^^^^^^^^^\nTypeError: unsupported operand type(s) for +: 'SafeLoader' and 'str'\n"
+  },
+  "event_ids": [],
+  "model": "ollama/gemma4:26b",
+  "normalized_trace_available": false,
+  "normalized_trace_file": "normalized_trace.jsonl",
+  "normalized_trace_row_count": 0,
+  "prompt_family_hash": "76dc9fd499055dfafa88b496a9d5a89c2f497e66aa26f85c9ae9f9d77178f715",
+  "prompt_surface": {
+    "first_turn_tool_schema": null,
+    "first_turn_user_message": {
+      "content": "Audit artifact integrity failure.",
+      "role": "system"
+    },
+    "prompt_surface_kind": "artifact_integrity",
+    "system_prompt": null
+  },
+  "provider": "ollama",
+  "replay_available": false,
+  "replay_frame_count": 0,
+  "replay_schema_version": 1,
+  "replication": 1,
+  "run_metrics": {
+    "action_id_fallback_count": 0,
+    "ambiguous_action_choice_errors": 0,
+    "artifact_integrity_errors": 1,
+    "bare_verb_fallback_count": 0,
+    "flattened_parameter_count": 0,
+    "grounding_error_count": 0,
+    "invalid_model_outputs": 0,
+    "invalid_tool_calls": 0,
+    "json_repair_count": 0,
+    "max_completion_tokens_single_turn": 0,
+    "max_prompt_tokens_single_turn": 0,
+    "model_output_format_errors": 0,
+    "model_output_retry_count": 0,
+    "post_completion_turns": 0,
+    "provider_errors": 0,
+    "semantic_fallback_count": 0,
+    "stringified_parameters_repair_count": 0,
+    "tool_name_alias_count": 0,
+    "tool_retry_count": 0,
+    "transport_normalization_count": 0
+  },
+  "scenario": "inventory_management",
+  "score": {
+    "blocked_actions": 0,
+    "completion_ratio": 0.0,
+    "error": "unsupported operand type(s) for +: 'SafeLoader' and 'str'",
+    "error_taxonomy": "artifact_integrity_failure",
+    "safety_violations": 0,
+    "steps_taken": 0,
+    "success": false,
+    "time_elapsed_seconds": 0.0
+  },
+  "started_at": "2026-04-27T10:36:35.519855+00:00",
+  "status": "failed",
+  "trace_ids": []
+}

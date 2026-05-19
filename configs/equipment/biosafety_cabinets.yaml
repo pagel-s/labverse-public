@@ -1,0 +1,31 @@
+equipment_types:
+  - equipment_type: biosafety_cabinet
+    description: Class II biosafety cabinet with airflow and UV sterilization modes
+    state_machine: biosafety_cabinet
+    commands:
+      work:
+        name: work
+        description: Perform sterile work with stabilized airflow
+        duration_seconds: 1800
+        preconditions: [state:ready]
+      sterilize_uv:
+        name: sterilize_uv
+        description: Run a UV sterilization cycle
+        duration_seconds: 900
+        preconditions: [state:idle]
+    properties:
+      airflow_minutes_required:
+        name: airflow_minutes_required
+        description: Minimum airflow stabilization period before work
+        param_type: int
+        unit: min
+        min_value: 1
+        max_value: 60
+        default_value: 15
+        current_value: 15
+      uv_enabled:
+        name: uv_enabled
+        description: Whether UV sterilization hardware is installed
+        param_type: bool
+        default_value: true
+        current_value: true

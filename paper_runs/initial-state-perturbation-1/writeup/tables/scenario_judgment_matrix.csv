@@ -1,0 +1,15 @@
+scenario_name,task_family,paper_role,expected_best_condition,main_claim_support_level,why_this_task_exists
+pcr_setup,anchors,anchor,small_deltas,weak,Provides a bounded protocol anchor where interface differences should be smaller than on safety-critical execution tasks.
+reagent_preparation,anchors,anchor,small_deltas,weak,Provides a reasoning and parameter-selection anchor where embodiment should matter less than basic protocol following.
+cell_culture_passage,local_safety_execution,supporting,local_structured_interactive_grounded,moderate,"Measures whether sterile, local, multi-step wet-lab execution benefits from grounded action selection and PPE discipline."
+chemical_spill_response,local_safety_execution,flagship,local_structured_interactive_grounded,strong,"Measures whether local grounded control helps with explicit PPE, hazard handling, and ordered safety recovery."
+equipment_failure_recovery,stateful_handling,supporting,local_structured_interactive_grounded,moderate,Measures whether stateful recovery and safe intervention outperform purely global situational planning.
+safety_violation_detection,inspection_search,boundary_case,global_structured_interactive_grounded,important_counterexample,Acts as a boundary-case search task where broad global inspection may be as useful as or better than local grounded control.
+inventory_management,inspection_search,mixed,mixed_or_split,moderate,Bridges global search and grounded disposal by combining identification work with one embodied corrective action.
+sample_tracking,stateful_handling,supporting,local_structured_interactive_grounded,moderate,Measures whether local grounded execution helps maintain chain-of-custody state across rooms and storage locations.
+multi_step_protocol,timed_coordination,flagship_secondary,local_structured_interactive_grounded,strong_if_stabilized,"Measures whether agents can preserve local state, wait correctly, and finish a timed protocol without interrupting equipment early."
+shared_equipment_scheduling,timed_coordination,flagship,local_structured_interactive_grounded,strong,Measures whether grounded coordination and waiting behavior help under shared-resource contention and timed completion.
+branch_selection_under_uncertainty,decision_under_uncertainty,challenge,mixed_or_split,moderate,Tests whether the benchmark distinguishes a grounded feasible triage branch from a superficially plausible but unhelpful repeated PCR branch.
+contamination_source_tracing,sterile_biology,challenge,local_structured_interactive_grounded,strong,"Tests grounded sterile containment with explicit quarantine, preserved-control, and no-open-handling criteria."
+cold_chain_time_critical_transfer,timed_coordination,challenge,local_structured_interactive_grounded,strong,Tests whether grounded action loops can preserve a temperature-sensitive sample across room transitions and timed equipment execution.
+emergency_triage_response,local_safety_execution,challenge,local_structured_interactive_grounded,strong,Tests prioritized safety recovery when two hazards compete and the correct order is part of the scientific claim.

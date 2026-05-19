@@ -1,0 +1,50 @@
+lab:
+  id: minimal_test_lab
+  name: Minimal Test Lab
+  description: Minimal two-room configuration for loader and CLI tests
+  default_entry_room: office
+
+rooms:
+  - id: office
+    name: Office
+    room_type: office
+
+  - id: wet_lab
+    name: Wet Lab
+    room_type: wet_lab
+    has_emergency_shower: true
+    has_eyewash: true
+    zones:
+      - id: bench_1
+        name: Bench 1
+        zone_type: bench
+        capacity: 1
+
+doors:
+  - id: door_office_wet_lab
+    connects: [office, wet_lab]
+
+equipment:
+  - id: centrifuge_1
+    name: Mini Centrifuge
+    equipment_type: centrifuge
+    room_id: wet_lab
+    zone_id: bench_1
+    status: idle
+    properties:
+      max_rpm: 6000
+      temperature_range: [4, 40]
+
+materials:
+  - id: pbs_1x
+    name: PBS 1X
+    room_id: wet_lab
+    quantity: 500.0
+
+persons:
+  - id: tech_1
+    name: Taylor Stone
+    role: technician
+    current_room_id: office
+
+samples: []

@@ -1,0 +1,17 @@
+bundle,model,planner,successes,n,success_rate,ci_low,ci_high,mean_completion_ratio
+initial-state-perturbation-2,ollama/gemma4:31b,local_structured_interactive_grounded,8,14,0.571429,0.325903,0.786195,0.812585
+initial-state-perturbation-2,ollama/gemma4:26b,local_structured_interactive_grounded,1,14,0.071429,0.012722,0.314693,0.567857
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_structured_interactive_grounded,1,14,0.071429,0.012722,0.314693,0.571667
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_structured_interactive_grounded,0,14,0.0,0.0,0.215317,0.486905
+initial-state-perturbation-2,ollama/gemma4:31b,local_narrative_interactive_grounded,9,14,0.642857,0.38764,0.836555,0.867262
+initial-state-perturbation-2,ollama/gemma4:26b,local_narrative_interactive_grounded,3,14,0.214286,0.075712,0.475897,0.524524
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_narrative_interactive_grounded,4,14,0.285714,0.117212,0.546495,0.778641
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_narrative_interactive_grounded,0,14,0.0,0.0,0.215317,0.621429
+initial-state-perturbation-2,ollama/gemma4:31b,global_structured_interactive_grounded,8,14,0.571429,0.325903,0.786195,0.790476
+initial-state-perturbation-2,ollama/gemma4:26b,global_structured_interactive_grounded,0,14,0.0,0.0,0.215317,0.46619
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_structured_interactive_grounded,2,14,0.142857,0.040093,0.399419,0.597344
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_structured_interactive_grounded,1,14,0.071429,0.012722,0.314693,0.608658
+initial-state-perturbation-2,ollama/gemma4:31b,global_one_shot_planner,10,14,0.714286,0.453505,0.882788,0.786905
+initial-state-perturbation-2,ollama/gemma4:26b,global_one_shot_planner,10,14,0.714286,0.453505,0.882788,0.911905
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_one_shot_planner,9,14,0.642857,0.38764,0.836555,0.830952
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_one_shot_planner,7,14,0.5,0.267989,0.732011,0.55

@@ -1,0 +1,76 @@
+equipment_types:
+  - equipment_type: pcr_thermocycler
+    description: PCR thermocycler for programmable amplification runs
+    state_machine: pcr_thermocycler
+    commands:
+      run_program:
+        name: run_program
+        description: Execute a PCR cycling program
+        duration_seconds: 5400
+        preconditions: [state:ready]
+        parameters:
+          - name: denaturation_temp
+            description: Denaturation temperature
+            param_type: float
+            unit: C
+            min_value: 80
+            max_value: 100
+          - name: annealing_temp
+            description: Annealing temperature
+            param_type: float
+            unit: C
+            min_value: 35
+            max_value: 80
+          - name: extension_temp
+            description: Extension temperature
+            param_type: float
+            unit: C
+            min_value: 60
+            max_value: 80
+          - name: cycle_count
+            description: Number of amplification cycles
+            param_type: int
+            min_value: 1
+            max_value: 50
+          - name: hold_temp
+            description: Final hold temperature
+            param_type: float
+            unit: C
+            min_value: 4
+            max_value: 20
+    properties:
+      denaturation_temp:
+        name: denaturation_temp
+        description: Programmed denaturation temperature
+        param_type: float
+        unit: C
+        min_value: 80
+        max_value: 100
+        default_value: 95.0
+        current_value: 95.0
+      annealing_temp:
+        name: annealing_temp
+        description: Programmed annealing temperature
+        param_type: float
+        unit: C
+        min_value: 35
+        max_value: 80
+        default_value: 55.0
+        current_value: 55.0
+      extension_temp:
+        name: extension_temp
+        description: Programmed extension temperature
+        param_type: float
+        unit: C
+        min_value: 60
+        max_value: 80
+        default_value: 72.0
+        current_value: 72.0
+      cycle_count:
+        name: cycle_count
+        description: Programmed cycle count
+        param_type: int
+        min_value: 1
+        max_value: 50
+        default_value: 35
+        current_value: 35

@@ -1,0 +1,17 @@
+bundle,model,category,failed_runs,all_runs,count,share_of_failed_runs,share_of_all_runs
+initial-state-perturbation-2,ollama/gemma4:31b,Behavioral/task failure,21,56,16,0.761905,0.285714
+initial-state-perturbation-2,ollama/gemma4:31b,Format/argument failure,21,56,0,0.0,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,Grounding/interface failure,21,56,0,0.0,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,Provider/runner failure,21,56,5,0.238095,0.089286
+initial-state-perturbation-2,ollama/gemma4:26b,Behavioral/task failure,42,56,31,0.738095,0.553571
+initial-state-perturbation-2,ollama/gemma4:26b,Format/argument failure,42,56,2,0.047619,0.035714
+initial-state-perturbation-2,ollama/gemma4:26b,Grounding/interface failure,42,56,3,0.071429,0.053571
+initial-state-perturbation-2,ollama/gemma4:26b,Provider/runner failure,42,56,6,0.142857,0.107143
+initial-state-perturbation-2,ollama/qwen3.5:27b,Behavioral/task failure,40,56,37,0.925,0.660714
+initial-state-perturbation-2,ollama/qwen3.5:27b,Format/argument failure,40,56,0,0.0,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,Grounding/interface failure,40,56,0,0.0,0.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,Provider/runner failure,40,56,3,0.075,0.053571
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,Behavioral/task failure,48,56,36,0.75,0.642857
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,Format/argument failure,48,56,0,0.0,0.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,Grounding/interface failure,48,56,2,0.041667,0.035714
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,Provider/runner failure,48,56,10,0.208333,0.178571

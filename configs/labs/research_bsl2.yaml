@@ -1,0 +1,198 @@
+lab:
+  id: research_bsl2_lab
+  name: Chen Lab - Molecular Biology BSL-2
+  description: Mid-size academic molecular biology lab with tissue culture facility
+  default_entry_room: office
+
+rooms:
+  - id: main_wet_lab
+    name: Main Wet Lab
+    room_type: wet_lab
+    bsl_level: 1
+    temperature_celsius: 22.0
+    max_occupancy: 8
+    has_emergency_shower: true
+    has_eyewash: true
+    zones:
+      - id: bench_1
+        name: Bench 1
+        zone_type: bench
+        position: {x: 0, y: 0}
+        width: 3.0
+        height: 0.8
+        capacity: 2
+      - id: fume_hood_1
+        name: Fume Hood 1
+        zone_type: fume_hood_area
+        position: {x: 4, y: 0}
+        width: 1.5
+        height: 0.8
+        capacity: 1
+
+  - id: tissue_culture
+    name: Tissue Culture Room
+    room_type: tissue_culture
+    bsl_level: 2
+    temperature_celsius: 22.0
+    max_occupancy: 3
+
+  - id: cold_room
+    name: 4C Cold Room
+    room_type: cold_room
+    temperature_celsius: 4.0
+    max_occupancy: 2
+
+  - id: chemical_storage
+    name: Chemical Storage
+    room_type: chemical_storage
+    max_occupancy: 2
+
+  - id: office
+    name: Write-up Area
+    room_type: office
+    max_occupancy: 6
+
+doors:
+  - id: door_main_tc
+    connects: [main_wet_lab, tissue_culture]
+    requires_bsl_clearance: 2
+  - id: door_main_cold
+    connects: [main_wet_lab, cold_room]
+  - id: door_main_chem
+    connects: [main_wet_lab, chemical_storage]
+  - id: door_main_office
+    connects: [main_wet_lab, office]
+
+equipment:
+  - id: centrifuge_1
+    name: Eppendorf 5424R
+    equipment_type: centrifuge
+    manufacturer: Eppendorf
+    model_name: 5424R
+    room_id: main_wet_lab
+    zone_id: bench_1
+    status: idle
+    properties:
+      max_rpm: 21130
+      max_rcf: 21130
+      temperature_range: [-10, 40]
+      rotor_capacity: 24
+
+  - id: pcr_1
+    name: Bio-Rad T100
+    equipment_type: pcr_thermocycler
+    room_id: main_wet_lab
+    zone_id: bench_1
+    status: idle
+
+  - id: bsc_1
+    name: Thermo 1300 Series A2
+    equipment_type: biosafety_cabinet
+    room_id: tissue_culture
+    status: ready
+    required_certifications: [bsl2_training]
+
+  - id: incubator_1
+    name: Thermo Heracell 150i
+    equipment_type: incubator
+    room_id: tissue_culture
+    status: running
+    properties:
+      temperature_celsius: 37.0
+      co2_percent: 5.0
+      humidity_percent: 95.0
+
+  - id: autoclave_1
+    name: Tuttnauer 3870EA
+    equipment_type: autoclave
+    room_id: main_wet_lab
+    required_certifications: [autoclave_operation]
+
+materials:
+  - id: ethanol_70
+    name: Ethanol 70%
+    cas_number: 64-17-5
+    formula: C2H5OH
+    phase: liquid
+    concentration: 70% v/v
+    quantity: 2500.0
+    quantity_unit: mL
+    room_id: main_wet_lab
+    ghs:
+      pictograms: [GHS02]
+      signal_word: danger
+      h_statements: [H225, H319]
+    required_ppe: [nitrile_gloves, safety_glasses]
+    waste_category: chemical
+
+  - id: trypsin_edta
+    name: Trypsin-EDTA 0.25%
+    phase: liquid
+    quantity: 100.0
+    quantity_unit: mL
+    room_id: tissue_culture
+    storage_temperature_celsius: 4.0
+    required_ppe: [nitrile_gloves, safety_glasses]
+
+  - id: hcl_conc
+    name: Hydrochloric Acid (Concentrated)
+    cas_number: 7647-01-0
+    formula: HCl
+    phase: liquid
+    concentration: 37%
+    quantity: 500.0
+    quantity_unit: mL
+    room_id: chemical_storage
+    ghs:
+      pictograms: [GHS05, GHS07]
+      signal_word: danger
+      h_statements: [H290, H314, H335]
+    required_ppe: [nitrile_gloves, safety_glasses, face_shield, chemical_apron]
+    waste_category: chemical
+    incompatible_with: [oxidizers, bases]
+
+persons:
+  - id: pi_chen
+    name: Dr. Sarah Chen
+    role: pi
+    certifications:
+      - cert_type: bsl2_training
+        granted_date: "2020-01-15"
+      - cert_type: chemical_safety
+        granted_date: "2020-01-15"
+    current_room_id: main_wet_lab
+    current_ppe: [lab_coat, safety_glasses, closed_toe_shoes]
+
+  - id: grad_kim
+    name: Alex Kim
+    role: grad_student
+    certifications:
+      - cert_type: bsl2_training
+        granted_date: "2024-09-01"
+    current_room_id: main_wet_lab
+    current_ppe: [lab_coat, safety_glasses, closed_toe_shoes]
+    lab_group: chen_lab
+
+  - id: tech_johnson
+    name: Maria Johnson
+    role: technician
+    certifications:
+      - cert_type: bsl2_training
+        granted_date: "2019-06-01"
+      - cert_type: autoclave_operation
+        granted_date: "2019-06-01"
+      - cert_type: chemical_safety
+        granted_date: "2019-06-01"
+    current_room_id: office
+    lab_group: chen_lab
+
+samples:
+  - id: hela_p12
+    name: HeLa P12
+    sample_type: cell_culture
+    room_id: tissue_culture
+    equipment_id: incubator_1
+    status: active
+    bsl_level: 2
+    created_at: "2026-01-15T10:00:00Z"
+    created_by: grad_kim

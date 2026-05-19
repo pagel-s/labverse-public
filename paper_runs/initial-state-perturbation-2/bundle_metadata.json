@@ -1,0 +1,119 @@
+{
+  "allow_dirty": false,
+  "bundle_id": "initial-state-perturbation-2",
+  "conditions": [
+    "local_structured_interactive_grounded",
+    "local_narrative_interactive_grounded",
+    "global_structured_interactive_grounded",
+    "global_one_shot_planner"
+  ],
+  "created_at": "2026-04-29T14:24:30.728643+00:00",
+  "git_commit_sha": "publication-export-source",
+  "git_dirty": false,
+  "initial_variant_hash": "f2647387d1078e9bdda30dfc1d256f4b56faa48948f7291f02dde6b05b1a9330",
+  "initial_variant_id": "sensitivity_v2",
+  "manifest_hash": "01434145694ecc6ac5c41271b24fc8b2695f7c213a0239aa17d73d81235b7a82",
+  "manifest_id": "labverse-embodiment-freeze-v3",
+  "manifest_path": "paper_runs/initial-state-perturbation-2/manifest.json",
+  "manifest_version": "3.0.0",
+  "max_tokens": 1024,
+  "models": [
+    "ollama/gemma4:31b",
+    "ollama/qwen3.5:27b",
+    "ollama/gemma4:26b",
+    "ollama/mistral-small3.2:24b"
+  ],
+  "notes": "",
+  "preflight": {
+    "allow_dirty": false,
+    "bundle_dir": "paper_runs/initial-state-perturbation-2",
+    "checked_at": "2026-04-29T14:24:30.724781+00:00",
+    "conditions": [
+      "local_structured_interactive_grounded",
+      "local_narrative_interactive_grounded",
+      "global_structured_interactive_grounded",
+      "global_one_shot_planner"
+    ],
+    "git_commit_sha": "publication-export-source",
+    "git_dirty": false,
+    "initial_variant_hash": "f2647387d1078e9bdda30dfc1d256f4b56faa48948f7291f02dde6b05b1a9330",
+    "initial_variant_id": "sensitivity_v2",
+    "issues": [],
+    "manifest_id": "labverse-embodiment-freeze-v3",
+    "manifest_version": "3.0.0",
+    "models": [
+      "ollama/gemma4:31b",
+      "ollama/qwen3.5:27b",
+      "ollama/gemma4:26b",
+      "ollama/mistral-small3.2:24b"
+    ],
+    "profile_name": "deterministic",
+    "prompt_family_hashes": {
+      "global_one_shot_planner": "135f125dcaecf93d7016d817bf00a93baa428a729b78d77741ab6537edf56d43",
+      "global_structured_interactive_grounded": "d22cd45a7f1c5335d062f35d07f429639e684d00c8f0e3906f1178124afa9a2a",
+      "local_narrative_interactive_grounded": "d9f401fea3067055d233dfcdfdb24db4caec76e80ecc31f6bf8422bdbf1a20e9",
+      "local_structured_interactive_grounded": "76dc9fd499055dfafa88b496a9d5a89c2f497e66aa26f85c9ae9f9d77178f715"
+    },
+    "provider_credentials": {},
+    "resume": true,
+    "scenarios": [
+      "pcr_setup",
+      "reagent_preparation",
+      "cell_culture_passage",
+      "chemical_spill_response",
+      "equipment_failure_recovery",
+      "safety_violation_detection",
+      "inventory_management",
+      "sample_tracking",
+      "multi_step_protocol",
+      "shared_equipment_scheduling",
+      "branch_selection_under_uncertainty",
+      "contamination_source_tracing",
+      "cold_chain_time_critical_transfer",
+      "emergency_triage_response"
+    ],
+    "scientific_artifact_hashes": {
+      "docs/paper-realism-audit.md": "054b715073c76ed7d6eb16f0f6d2178ca4898e2bdc70f9fe5ba90d90bb0346f7",
+      "docs/paper-scientific-contract.md": "964cde627c6d351c722f09854a175ac701638048c042d200a39e1e79a6d708aa",
+      "paper/expert_audit_rubric.yaml": "6e139ebf7d616f7e1a23ce9a7360e3f13714bfe94dd73d6ebda40ad8d594e835",
+      "paper/expert_audit_summary_template.md": "85b2402095ab647dbe409a77b7d1746a42213a87d0e9f8c4bbf4530418de098c",
+      "paper/expert_audit_template.csv": "74a749b2f5df1253a677ccdbd28dbc18ec9ae4f455435a16ed931a45f0c98577",
+      "paper/initial_condition_variants.yaml": "e48b8659bf8bb6ed72158523b4337a96a0f0b208cfb3ffd578c086dbd888c0cc",
+      "paper/scenario_integrity_matrix.yaml": "943a584e9478fe30185d3faa34ce1ba5f93281f505c3a79863ccf06294080b21",
+      "paper/scenario_observability_matrix.yaml": "ab7bc1e9072de55502fd73571c565ca1ad78b3d5113eb00e57a37942dd301cbe"
+    },
+    "warnings": [
+      "Git worktree is dirty; bundle will be marked non-reproducible."
+    ]
+  },
+  "profile_name": "deterministic",
+  "random_seed": 7,
+  "replications": 1,
+  "scenarios": [
+    "pcr_setup",
+    "reagent_preparation",
+    "cell_culture_passage",
+    "chemical_spill_response",
+    "equipment_failure_recovery",
+    "safety_violation_detection",
+    "inventory_management",
+    "sample_tracking",
+    "multi_step_protocol",
+    "shared_equipment_scheduling",
+    "branch_selection_under_uncertainty",
+    "contamination_source_tracing",
+    "cold_chain_time_critical_transfer",
+    "emergency_triage_response"
+  ],
+  "scientific_artifact_hashes": {
+    "docs/paper-realism-audit.md": "054b715073c76ed7d6eb16f0f6d2178ca4898e2bdc70f9fe5ba90d90bb0346f7",
+    "docs/paper-scientific-contract.md": "964cde627c6d351c722f09854a175ac701638048c042d200a39e1e79a6d708aa",
+    "paper/expert_audit_rubric.yaml": "6e139ebf7d616f7e1a23ce9a7360e3f13714bfe94dd73d6ebda40ad8d594e835",
+    "paper/expert_audit_summary_template.md": "85b2402095ab647dbe409a77b7d1746a42213a87d0e9f8c4bbf4530418de098c",
+    "paper/expert_audit_template.csv": "74a749b2f5df1253a677ccdbd28dbc18ec9ae4f455435a16ed931a45f0c98577",
+    "paper/initial_condition_variants.yaml": "e48b8659bf8bb6ed72158523b4337a96a0f0b208cfb3ffd578c086dbd888c0cc",
+    "paper/scenario_integrity_matrix.yaml": "943a584e9478fe30185d3faa34ce1ba5f93281f505c3a79863ccf06294080b21",
+    "paper/scenario_observability_matrix.yaml": "ab7bc1e9072de55502fd73571c565ca1ad78b3d5113eb00e57a37942dd301cbe"
+  },
+  "temperature": 0.0
+}

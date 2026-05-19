@@ -1,0 +1,17 @@
+bundle,model,planner,mean_completion_percent,mean_steps,mean_wall_time_seconds,model_error_events_total
+initial-state-perturbation-2,ollama/gemma4:31b,local_structured_interactive_grounded,81.258503,16.642857,116.861429,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,local_narrative_interactive_grounded,86.72619,16.0,103.056429,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,global_structured_interactive_grounded,79.047619,19.5,213.357857,0.0
+initial-state-perturbation-2,ollama/gemma4:31b,global_one_shot_planner,78.690476,8.357143,88.092857,0.0
+initial-state-perturbation-2,ollama/gemma4:26b,local_structured_interactive_grounded,56.785714,26.785714,80.27,1050.0
+initial-state-perturbation-2,ollama/gemma4:26b,local_narrative_interactive_grounded,52.452381,20.785714,53.657857,1050.0
+initial-state-perturbation-2,ollama/gemma4:26b,global_structured_interactive_grounded,46.619048,29.714286,102.775714,1050.0
+initial-state-perturbation-2,ollama/gemma4:26b,global_one_shot_planner,91.190476,10.142857,35.494286,1050.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_structured_interactive_grounded,57.166667,28.285714,243.802857,40.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,local_narrative_interactive_grounded,77.864146,23.714286,189.71,40.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_structured_interactive_grounded,59.734432,26.0,257.62,40.0
+initial-state-perturbation-2,ollama/qwen3.5:27b,global_one_shot_planner,83.095238,10.214286,188.149286,40.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_structured_interactive_grounded,48.690476,26.857143,93.783571,48.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,local_narrative_interactive_grounded,62.142857,27.285714,102.781429,48.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_structured_interactive_grounded,60.865801,30.214286,136.74,48.0
+initial-state-perturbation-2,ollama/mistral-small3.2:24b,global_one_shot_planner,55.0,6.785714,110.027857,48.0

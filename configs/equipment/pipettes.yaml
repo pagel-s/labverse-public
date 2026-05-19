@@ -1,0 +1,35 @@
+equipment_types:
+  - equipment_type: pipette
+    description: Manual air-displacement pipette
+    state_machine: pipette
+    capabilities:
+      - transfer
+    commands:
+      aspirate_dispense:
+        name: aspirate_dispense
+        description: Aspirate and dispense a configured volume
+        duration_seconds: 30
+        preconditions: [state:ready]
+        parameters:
+          - name: volume_ul
+            description: Transfer volume
+            param_type: float
+            unit: uL
+            min_value: 0.1
+            max_value: 1000
+    properties:
+      volume_ul:
+        name: volume_ul
+        description: Current setpoint volume
+        param_type: float
+        unit: uL
+        min_value: 0.1
+        max_value: 1000
+        default_value: 100.0
+        current_value: 100.0
+      tip_loaded:
+        name: tip_loaded
+        description: Whether a disposable tip is attached
+        param_type: bool
+        default_value: false
+        current_value: false

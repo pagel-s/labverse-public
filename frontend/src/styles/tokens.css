@@ -1,0 +1,208 @@
+/*
+ * LabVerse design tokens
+ * --------------------------------------------------------------
+ * Source of truth for the visual system. See /.impeccable.md for
+ * the design context this palette and scale derives from.
+ *
+ * Aesthetic: precise, unimpressed, scientific. Warm paper neutrals,
+ * a single deep oxidised-indigo accent, hairlines instead of shadows,
+ * tight geometry. Light theme only — there is no dark mode in v1.
+ *
+ * Old token names (--bg, --surface, --line, --accent, --text, etc.)
+ * are kept as aliases to the new canonical tokens so the rest of
+ * the stylesheet keeps working without a coordinated rename.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ----------------------------------------------------------
+   * Paper: warm neutrals tinted toward cream (hue ~85°).
+   * High lightness, very low chroma. Background reads as
+   * lab-notebook paper, never dashboard gray.
+   * -------------------------------------------------------- */
+  --paper:           oklch(98.2% 0.008 85);   /* page background */
+  --paper-raised:    oklch(99.4% 0.005 85);   /* surfaces above the page */
+  --paper-sunken:    oklch(96.0% 0.012 85);   /* dense data wells, code blocks */
+  --paper-strong:    oklch(93.5% 0.014 85);   /* strongest neutral fill */
+  --paper-inverse:   oklch(22.0% 0.020 265);  /* rare emphasis blocks */
+
+  /* ----------------------------------------------------------
+   * Ink: text. Never pure black. Tinted toward the indigo
+   * accent so type and accent feel related, not foreign.
+   * -------------------------------------------------------- */
+  --ink:             oklch(22.0% 0.022 265);  /* primary text */
+  --ink-2:           oklch(38.0% 0.020 265);  /* secondary */
+  --ink-3:           oklch(52.0% 0.018 265);  /* tertiary, captions */
+  --ink-4:           oklch(66.0% 0.014 265);  /* placeholder, disabled */
+
+  /* ----------------------------------------------------------
+   * Rules: 1px hairlines. Borders, not shadows, define edges.
+   * -------------------------------------------------------- */
+  --rule-soft:       oklch(93.0% 0.012 85);
+  --rule:            oklch(86.5% 0.014 85);
+  --rule-strong:     oklch(76.0% 0.020 85);
+
+  /* ----------------------------------------------------------
+   * Accent: a single deep oxidised indigo. Used for the one
+   * primary action on screen and for active state. Reserved
+   * to ≤10% of visual weight. Never as decoration.
+   * -------------------------------------------------------- */
+  --accent-1:        oklch(34.0% 0.135 265);  /* primary */
+  --accent-1-strong: oklch(27.0% 0.140 265);  /* pressed / hover-down */
+  --accent-1-line:   oklch(62.0% 0.090 265);  /* accent border on light fill */
+  --accent-1-soft:   oklch(94.0% 0.025 265);  /* tinted background fill */
+  --accent-1-ink:    oklch(98.0% 0.010 85);   /* text on accent fills */
+
+  /* ----------------------------------------------------------
+   * Semantic status. Mid-lightness, low chroma. Never neon.
+   * Warning is amber, danger is rust (not red), success is
+   * sage (not lime). All chosen for "unimpressed" tone.
+   * -------------------------------------------------------- */
+  --warn:            oklch(56.0% 0.135 70);
+  --warn-soft:       oklch(94.5% 0.038 75);
+  --warn-line:       oklch(76.0% 0.085 70);
+
+  --danger:          oklch(46.0% 0.155 28);
+  --danger-soft:     oklch(94.0% 0.030 30);
+  --danger-line:     oklch(72.0% 0.110 28);
+
+  --ok:              oklch(48.0% 0.090 148);
+  --ok-soft:         oklch(94.5% 0.028 148);
+  --ok-line:         oklch(72.0% 0.075 148);
+
+  /* ----------------------------------------------------------
+   * Type system. Three families, each with a semantic role.
+   * Archivo for instrumentation (controls, body, dense data).
+   * Spectral for specimen labels (run titles, section heads).
+   * Fragment Mono ONLY for tabular data tokens (IDs, JSON).
+   * -------------------------------------------------------- */
+  --font-sans:  "Archivo Variable", "Archivo", system-ui, -apple-system, sans-serif;
+  --font-serif: "Spectral", "Iowan Old Style", "Palatino", Georgia, serif;
+  --font-mono:  "Fragment Mono", "SF Mono", "Consolas", ui-monospace, monospace;
+
+  /* OpenType features used by tabular fields and headings */
+  --feat-tabular:  "tnum" 1, "lnum" 1, "calt" 1;
+  --feat-display:  "ss01" 1, "calt" 1, "kern" 1;
+
+  /* ----------------------------------------------------------
+   * Type scale (fixed rem, 5 working sizes + a display step).
+   * Density-first: 15px is the primary body, smaller than the
+   * usual 16, because reviewers want more on screen.
+   * -------------------------------------------------------- */
+  --text-xs:      0.75rem;    /* 12px — micro labels, captions */
+  --text-sm:      0.8125rem;  /* 13px — dense body, form text */
+  --text-base:    0.9375rem;  /* 15px — primary body */
+  --text-md:      1.0625rem;  /* 17px — emphasised body */
+  --text-lg:      1.25rem;    /* 20px — section heading */
+  --text-xl:      1.625rem;   /* 26px — page heading */
+  --text-display: 2.125rem;   /* 34px — Spectral display only */
+
+  /* Line-heights — tighter on display, looser on body */
+  --leading-tight:   1.15;
+  --leading-snug:    1.32;
+  --leading-base:    1.5;
+  --leading-relaxed: 1.62;
+
+  /* Letter-spacing — Archivo is fairly loose by default */
+  --tracking-tight:   -0.01em;
+  --tracking-base:    0;
+  --tracking-label:   0.04em;     /* small caps labels */
+  --tracking-allcaps: 0.10em;     /* SECTION KICKERS only */
+
+  /* ----------------------------------------------------------
+   * Spacing — 4pt scale. Numeric names kept for compatibility
+   * with the existing component CSS; semantic aliases provided.
+   * -------------------------------------------------------- */
+  --space-1: 0.25rem;   /*  4 */
+  --space-2: 0.5rem;    /*  8 */
+  --space-3: 0.75rem;   /* 12 */
+  --space-4: 1rem;      /* 16 */
+  --space-5: 1.5rem;    /* 24 */
+  --space-6: 2rem;      /* 32 */
+  --space-7: 3rem;      /* 48 */
+  --space-8: 4rem;      /* 64 */
+
+  /* ----------------------------------------------------------
+   * Geometry — tight radii. The whole product caps at 6px.
+   * No 12/18/24px soft corners anywhere. Pill kept only for
+   * actual pills (status chips), not for buttons.
+   * -------------------------------------------------------- */
+  --radius-1:    2px;
+  --radius-2:    4px;
+  --radius-3:    6px;
+  --radius-pill: 999px;
+
+  /* Hairline width — every border in the product is 1px */
+  --hairline:    1px;
+
+  /* ----------------------------------------------------------
+   * Layout
+   * -------------------------------------------------------- */
+  --topbar-h:        56px;
+  --rail-w:          292px;
+  --rail-w-narrow:   232px;
+  --content-max:     74ch;        /* body text reading width */
+
+  /* ----------------------------------------------------------
+   * Motion — exponential easing only. No bounce.
+   * -------------------------------------------------------- */
+  --motion-fast: 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-base: 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-slow: 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* ----------------------------------------------------------
+   * Focus ring — outline-based, not box-shadow. Sits 2px
+   * outside the element with a 1px paper-coloured halo so
+   * it reads cleanly against any background.
+   * -------------------------------------------------------- */
+  --focus-outline: 2px solid var(--accent-1);
+  --focus-offset:  2px;
+
+  /* ----------------------------------------------------------
+   * Back-compat aliases for the old token names. Existing
+   * component CSS keeps working; new code should prefer
+   * the canonical tokens above.
+   * -------------------------------------------------------- */
+  --bg:             var(--paper);
+  --bg-strong:      var(--paper-strong);
+  --surface:        var(--paper-raised);
+  --surface-soft:   var(--paper-sunken);
+  --surface-strong: var(--paper-raised);
+  --surface-ink:    var(--paper-inverse);
+
+  --line:           var(--rule);
+  --line-strong:    var(--rule-strong);
+  --line-subtle:    var(--rule-soft);
+
+  --text:           var(--ink);
+  --muted:          var(--ink-3);
+  --muted-strong:   var(--ink-2);
+
+  --accent:         var(--accent-1);
+  --accent-soft:    var(--accent-1-soft);
+  --blue:           var(--accent-1);
+  --blue-soft:      var(--accent-1-soft);
+  --gold:           var(--warn);
+  --gold-soft:      var(--warn-soft);
+  /* --danger and --danger-soft already canonical above */
+
+  /* Shadows are eliminated from the design language. The old
+   * tokens are aliased to none so any lingering box-shadow
+   * declarations silently disappear instead of breaking. */
+  --shadow-sm:      none;
+  --shadow-md:      none;
+  --shadow-lg:      none;
+
+  --radius-sm:      var(--radius-1);
+  --radius-md:      var(--radius-2);
+  --radius-lg:      var(--radius-3);
+  --radius-xl:      var(--radius-3);
+
+  --transition-fast: var(--motion-fast);
+  --transition-base: var(--motion-base);
+
+  /* Sidebar widths kept for the existing shell CSS */
+  --sidebar-w:           var(--rail-w);
+  --sidebar-w-collapsed: 52px;
+}

@@ -1,0 +1,51 @@
+equipment_types:
+  - equipment_type: autoclave
+    description: Steam autoclave for sterilization cycles
+    state_machine: autoclave
+    required_certifications: [autoclave_operation]
+    commands:
+      sterilize:
+        name: sterilize
+        description: Run a full sterilization cycle
+        duration_seconds: 5400
+        preconditions: [state:ready]
+        parameters:
+          - name: temperature_celsius
+            description: Sterilization temperature
+            param_type: int
+            unit: C
+            allowed_values: ["121", "134"]
+          - name: cycle_duration_minutes
+            description: Cycle duration
+            param_type: int
+            unit: min
+            min_value: 5
+            max_value: 120
+    properties:
+      temperature_celsius:
+        name: temperature_celsius
+        description: Sterilization temperature
+        param_type: int
+        unit: C
+        min_value: 121
+        max_value: 134
+        default_value: 121
+        current_value: 121
+      pressure_psi:
+        name: pressure_psi
+        description: Chamber pressure
+        param_type: float
+        unit: psi
+        min_value: 0
+        max_value: 40
+        default_value: 15.0
+        current_value: 15.0
+      cycle_duration_minutes:
+        name: cycle_duration_minutes
+        description: Sterilization cycle duration
+        param_type: int
+        unit: min
+        min_value: 5
+        max_value: 120
+        default_value: 30
+        current_value: 30

@@ -1,0 +1,50 @@
+/*
+ * Spacing utilities. Kept tiny on purpose. Use sparingly —
+ * prefer flow inside layout containers (gap, padding) over
+ * margin utilities. These exist mostly to replace inline
+ * style={{ marginTop: "var(--space-3)" }} type clutter.
+ */
+
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.mt-6 { margin-top: var(--space-6); }
+
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-5 { margin-bottom: var(--space-5); }
+.mb-6 { margin-bottom: var(--space-6); }
+
+.text-center { text-align: center; }
+.text-right  { text-align: right; }
+
+.fill { width: 100%; height: 100%; }
+
+/*
+ * Motion. Used only for state changes (entrance, exit). The
+ * skill says: nothing moves unless it means something. Reduced-
+ * motion users get the static end-state via the global rule
+ * in reset.css.
+ */
+
+@keyframes lv-rise-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lv-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-in {
+  animation: lv-rise-in var(--motion-base) both;
+}
+
+.fade-in {
+  animation: lv-fade-in var(--motion-base) both;
+}

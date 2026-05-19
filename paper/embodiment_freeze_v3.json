@@ -1,0 +1,216 @@
+{
+  "manifest_id": "labverse-embodiment-freeze-v3",
+  "version": "3.0.0",
+  "track": "neurips_main_track",
+  "primary_claim": "interactive_grounded_simulation_beats_one_shot_text_planning",
+  "description": "Frozen v3 benchmark manifest for the LabVerse embodiment and grounding paper. v3 keeps the v2 affordance-only action surface and primary conditions, then adds four higher-complexity challenge scenarios with explicit, observable goals and audited partial-credit criteria.",
+  "primary_conditions": [
+    "local_structured_interactive_grounded",
+    "local_narrative_interactive_grounded",
+    "global_structured_interactive_grounded",
+    "global_one_shot_planner"
+  ],
+  "appendix_conditions": [
+    "scripted_oracle"
+  ],
+  "primary_metrics": [
+    "success",
+    "completion_ratio",
+    "safety_violations",
+    "blocked_actions",
+    "steps_taken",
+    "time_elapsed_seconds",
+    "prompt_tokens",
+    "completion_tokens"
+  ],
+  "secondary_metrics": [
+    "efficiency_score",
+    "wall_time_seconds"
+  ],
+  "action_surface_semantics": "affordance_only",
+  "constraint_policy_per_scenario": {
+    "inventory_management": {
+      "material_expiry": "block"
+    },
+    "cell_culture_passage": {
+      "sample_contamination": "block"
+    }
+  },
+  "tool_schema_parity_note": "Interactive conditions use per-turn closed-enum tool schemas whose choice set is exactly the current affordance surface. The one-shot planner uses an open-verb schema because turn N+1's affordances depend on turn N's side effects, which are unavailable at planning time. This asymmetry is intentional and documented in docs/paper-scientific-contract.md.",
+  "token_budget_warning_thresholds": {
+    "local_structured_interactive_grounded": {
+      "mean_prompt_tokens": 400000,
+      "single_turn_prompt_tokens": 35000
+    },
+    "local_narrative_interactive_grounded": {
+      "mean_prompt_tokens": 400000,
+      "single_turn_prompt_tokens": 35000
+    },
+    "global_structured_interactive_grounded": {
+      "mean_prompt_tokens": 400000,
+      "single_turn_prompt_tokens": 35000
+    },
+    "global_one_shot_planner": {
+      "mean_prompt_tokens": 120000,
+      "single_turn_prompt_tokens": 200000
+    }
+  },
+  "profiles": {
+    "deterministic": {
+      "replications": 3,
+      "temperature": 0.0,
+      "max_tokens": 1024,
+      "retry_limit": 3,
+      "description": "Primary exact-policy mode for infrastructure checks and deterministic comparison."
+    },
+    "robustness": {
+      "replications": 10,
+      "temperature": 0.2,
+      "max_tokens": 1024,
+      "retry_limit": 3,
+      "description": "Variance-sensitive robustness mode for the full paper matrix."
+    }
+  },
+  "scenarios": [
+    {
+      "name": "pcr_setup",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 25,
+      "optimal_steps": 5,
+      "spatial_complexity": "low",
+      "safety_complexity": "low",
+      "category": "bounded_protocol",
+      "why_embodiment_matters": "Weakly; PPE and equipment grounding are the main embodied affordances."
+    },
+    {
+      "name": "reagent_preparation",
+      "config_path": "configs/labs/minimal_test.yaml",
+      "max_steps": 15,
+      "optimal_steps": 6,
+      "spatial_complexity": "low",
+      "safety_complexity": "low",
+      "category": "bounded_protocol",
+      "why_embodiment_matters": "Weakly; primarily arithmetic and inventory tracking."
+    },
+    {
+      "name": "cell_culture_passage",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 40,
+      "optimal_steps": 9,
+      "spatial_complexity": "high",
+      "safety_complexity": "high",
+      "category": "sterile_biology",
+      "why_embodiment_matters": "Moderately; BSL-2 PPE, room changes, and sterile workflow create local constraints."
+    },
+    {
+      "name": "chemical_spill_response",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 20,
+      "optimal_steps": 10,
+      "spatial_complexity": "high",
+      "safety_complexity": "high",
+      "category": "safety_recovery",
+      "why_embodiment_matters": "Strongly; blocked actions and PPE sequencing are explicit in the embodied loop."
+    },
+    {
+      "name": "equipment_failure_recovery",
+      "config_path": "configs/labs/minimal_test.yaml",
+      "max_steps": 20,
+      "optimal_steps": 7,
+      "spatial_complexity": "low",
+      "safety_complexity": "high",
+      "category": "failure_recovery",
+      "why_embodiment_matters": "Moderately; recovering from live equipment state is easier when state is grounded."
+    },
+    {
+      "name": "safety_violation_detection",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 30,
+      "optimal_steps": 11,
+      "spatial_complexity": "high",
+      "safety_complexity": "high",
+      "category": "inspection",
+      "why_embodiment_matters": "Ambiguous; full-state text may help, but embodied search may improve procedural rigor."
+    },
+    {
+      "name": "inventory_management",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 40,
+      "optimal_steps": 10,
+      "spatial_complexity": "high",
+      "safety_complexity": "high",
+      "category": "inventory_audit",
+      "why_embodiment_matters": "Moderately; spatial search and disposal actions matter."
+    },
+    {
+      "name": "sample_tracking",
+      "config_path": "configs/labs/minimal_test.yaml",
+      "max_steps": 35,
+      "optimal_steps": 10,
+      "spatial_complexity": "high",
+      "safety_complexity": "low",
+      "category": "chain_of_custody",
+      "why_embodiment_matters": "Moderately; chain-of-custody ordering is easier to maintain with local state."
+    },
+    {
+      "name": "multi_step_protocol",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 60,
+      "optimal_steps": 11,
+      "spatial_complexity": "high",
+      "safety_complexity": "high",
+      "category": "timed_protocol",
+      "why_embodiment_matters": "Strongly; timed waits and storage dependencies compound over many steps."
+    },
+    {
+      "name": "shared_equipment_scheduling",
+      "config_path": "configs/labs/minimal_test.yaml",
+      "max_steps": 30,
+      "optimal_steps": 22,
+      "spatial_complexity": "high",
+      "safety_complexity": "high",
+      "category": "multi_agent_coordination",
+      "why_embodiment_matters": "Strongly; live equipment occupancy and timing drive coordination quality."
+    },
+    {
+      "name": "branch_selection_under_uncertainty",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 22,
+      "optimal_steps": 9,
+      "spatial_complexity": "medium",
+      "safety_complexity": "low",
+      "category": "decision_under_uncertainty",
+      "why_embodiment_matters": "Moderately; grounded state distinguishes a feasible centrifuge triage branch from an unhelpful repeated PCR branch."
+    },
+    {
+      "name": "contamination_source_tracing",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 35,
+      "optimal_steps": 8,
+      "spatial_complexity": "high",
+      "safety_complexity": "high",
+      "category": "sterile_biology",
+      "why_embodiment_matters": "Strongly; the agent must navigate BSL-2 access, isolate a suspect culture, preserve a control, and avoid unsafe open handling."
+    },
+    {
+      "name": "cold_chain_time_critical_transfer",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 35,
+      "optimal_steps": 14,
+      "spatial_complexity": "high",
+      "safety_complexity": "medium",
+      "category": "timed_protocol",
+      "why_embodiment_matters": "Strongly; success depends on live room transitions, equipment timing, and returning a temperature-sensitive sample within a bounded action window."
+    },
+    {
+      "name": "emergency_triage_response",
+      "config_path": "configs/labs/research_bsl2.yaml",
+      "max_steps": 35,
+      "optimal_steps": 12,
+      "spatial_complexity": "high",
+      "safety_complexity": "high",
+      "category": "safety_recovery",
+      "why_embodiment_matters": "Strongly; the agent must prioritize a live equipment hazard before a chemical spill while satisfying PPE and fume-hood constraints."
+    }
+  ]
+}

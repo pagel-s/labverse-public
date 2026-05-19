@@ -1,0 +1,262 @@
+manifest_id: labverse-embodiment-freeze-v3
+paper_scope: interactive_grounded_simulation_beats_one_shot_text_planning
+scenarios:
+  - scenario_name: pcr_setup
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: anchors
+    paper_role: anchor
+    expected_best_condition: small_deltas
+    critical_rooms: [main_wet_lab]
+    critical_entities: [pcr_1, pipette_pcr_1, pcr_master_mix, pcr_reaction_1]
+    required_affordances:
+      - Exact PPE actions and equipment-start actions must surface before protocol execution.
+      - The protocol must remain executable through grounded turn-by-turn actions without hidden shortcuts.
+    forbidden_shortcuts:
+      - No scenario-specific direct-complete action.
+      - No global-only information should create extra executable actions.
+    scorer_expectations:
+      - Score should depend on correct PCR execution and completion logging.
+      - Missed PPE or incorrect equipment parameters must lower completion or success.
+    notes: Anchor task where condition deltas should remain small.
+  - scenario_name: reagent_preparation
+    config_path: configs/labs/minimal_test.yaml
+    task_family: anchors
+    paper_role: anchor
+    expected_best_condition: small_deltas
+    critical_rooms: [office, wet_lab]
+    critical_entities: [pipette_pbs_1, pbs_10x_stock, pbs_batch_1]
+    required_affordances:
+      - Transfer and logging actions must be available when the agent is co-located with the required entities.
+      - Parameter-bearing actions must expose only the free parameters needed for the current transfer.
+    forbidden_shortcuts:
+      - No hidden arithmetic completion path outside the grounded action loop.
+      - No non-local material interactions.
+    scorer_expectations:
+      - Final mixture correctness and logging must determine score.
+      - Wrong volume or missing label/logging must count against completion.
+    notes: Reasoning-heavy anchor where embodiment should matter less than on flagship tasks.
+  - scenario_name: cell_culture_passage
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: local_safety_execution
+    paper_role: supporting
+    expected_best_condition: local_structured_interactive_grounded
+    critical_rooms: [main_wet_lab, tissue_culture]
+    critical_entities: [bsc_1, incubator_1, hela_p12, pipette_tc_1]
+    required_affordances:
+      - BSL-2 PPE and room-transition affordances must surface locally and block unsafe entry.
+      - Cabinet and incubator interactions must require co-location and safe sequencing.
+    forbidden_shortcuts:
+      - No sterile-work completion without room entry and cabinet use.
+      - No direct storage or recovery actions from non-local rooms.
+      - v2/v3 constraint_policy promotes sample_contamination to BLOCK; pipette
+        transfers outside a sterile environment must be rejected, not warned.
+    scorer_expectations:
+      - Missing BSL-2 PPE or sterile sequencing must reduce score.
+      - Correct cabinet use, passage flow, and final storage must drive success.
+    notes: >-
+      Supporting evidence for local safety execution. Under v2/v3,
+      sample_contamination is enforced at BLOCK level for this scenario so
+      that a contamination WARN cannot be silently ignored. The constraint
+      intentionally only applies to pipette_transfer (open-liquid exposure) —
+      sealed retrieve/store operations move the sample without exposing it.
+  - scenario_name: chemical_spill_response
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: local_safety_execution
+    paper_role: flagship
+    expected_best_condition: local_structured_interactive_grounded
+    critical_rooms: [main_wet_lab, chemical_storage]
+    critical_entities: [hcl_conc, door_main_chem, spill_hood]
+    required_affordances:
+      - Unsafe spill handling must appear as blocked with explicit PPE or door-state reasons.
+      - Cleanup, disposal, and incident logging must remain separate grounded actions.
+    forbidden_shortcuts:
+      - No spill disposal before PPE and room access constraints are satisfied.
+      - No hidden auto-resolution of the spill after unrelated actions.
+    scorer_expectations:
+      - Safety-first cleanup order and incident logging must determine success.
+      - Unsafe disposal attempts and incomplete cleanup must be scored as failures or partial completion.
+    notes: Primary flagship for local grounded safety recovery.
+  - scenario_name: equipment_failure_recovery
+    config_path: configs/labs/minimal_test.yaml
+    task_family: stateful_handling
+    paper_role: supporting
+    expected_best_condition: local_structured_interactive_grounded
+    critical_rooms: [wet_lab]
+    critical_entities: [centrifuge_1]
+    required_affordances:
+      - Stop, recover, and log actions must remain distinct and stateful.
+      - Error-state equipment must surface attention and recovery affordances locally.
+    forbidden_shortcuts:
+      - No hidden reset that clears the error without an explicit action.
+      - No sample recovery from non-local state.
+    scorer_expectations:
+      - Safe stop, sample recovery, and documentation must determine success.
+      - Leaving the equipment in error or skipping recovery/logging must lower score.
+    notes: Supporting stateful-handling task.
+  - scenario_name: safety_violation_detection
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: inspection_search
+    paper_role: boundary_case
+    expected_best_condition: global_structured_interactive_grounded
+    critical_rooms: [main_wet_lab, chemical_storage, tissue_culture]
+    critical_entities: [expired_buffer, naoh_1, hcl_conc, visitor_1]
+    required_affordances:
+      - Search-relevant entities must be represented truthfully in the global structured prompt surface.
+      - Local control must still require room-by-room inspection to discover non-local issues.
+    forbidden_shortcuts:
+      - No hidden scenario hint that enumerates planted violations.
+      - No automatic issue discovery without inspection or global-state access.
+    scorer_expectations:
+      - Recall of planted violations and avoidance of false positives must drive score.
+      - Failure to inspect the relevant rooms must be penalized.
+    notes: Boundary case where global structured access may legitimately help.
+  - scenario_name: inventory_management
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: inspection_search
+    paper_role: mixed
+    expected_best_condition: mixed_or_split
+    critical_rooms: [cold_room, chemical_storage]
+    critical_entities: [old_media, naoh_1, hcl_conc]
+    required_affordances:
+      - Search-relevant expiry and incompatibility facts must be present in the global structured control.
+      - Corrective grounded disposal/logging actions must still require local action execution.
+    forbidden_shortcuts:
+      - No one-shot completion after issue identification without embodied corrective action.
+      - No omission of expiry or incompatibility facts from the global control.
+      - v2/v3 constraint_policy promotes material_expiry to BLOCK; consumptive
+        use of expired materials must be rejected, not warned. Disposal of
+        expired materials is deliberately out of scope so the cleanup path
+        remains the correct response to expiry.
+    scorer_expectations:
+      - Correct identification plus grounded corrective action must determine success.
+      - Missed disposal or incomplete incompatibility logging must reduce score.
+    notes: >-
+      Mixed task bridging search and embodied correction. Under v2/v3,
+      material_expiry is enforced at BLOCK level here so that "used the
+      expired buffer" can no longer pass as a warning.
+  - scenario_name: sample_tracking
+    config_path: configs/labs/minimal_test.yaml
+    task_family: stateful_handling
+    paper_role: supporting
+    expected_best_condition: local_structured_interactive_grounded
+    critical_rooms: [office, wet_lab]
+    critical_entities: [incoming_sample_1]
+    required_affordances:
+      - Carry, move, store, and log actions must preserve grounded chain-of-custody state.
+      - Storage options must remain local to the current room and equipment.
+    forbidden_shortcuts:
+      - No teleport-style sample relocation.
+      - No hidden custody completion without explicit logging.
+    scorer_expectations:
+      - Correct final location and custody chain must determine success.
+      - Missing logs or wrong placement must reduce completion.
+    notes: Supporting stateful chain-of-custody task.
+  - scenario_name: multi_step_protocol
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: timed_coordination
+    paper_role: flagship_secondary
+    expected_best_condition: local_structured_interactive_grounded
+    critical_rooms: [main_wet_lab, cold_room, tissue_culture]
+    critical_entities: [incubator_1]
+    required_affordances:
+      - Timed equipment state must remain visible in local observation and prompt surfaces.
+      - Safe waiting, intermediate storage, and completion logging must remain separate actions.
+    forbidden_shortcuts:
+      - No protocol completion before timed equipment finishes.
+      - No hidden wait shortcut beyond the normal grounded action loop.
+    scorer_expectations:
+      - Correct timed completion and orderly storage transitions must determine success.
+      - Stopping equipment early or skipping storage/logging must lower score.
+    notes: Strong timed-stateful task once the interface path is stable.
+  - scenario_name: shared_equipment_scheduling
+    config_path: configs/labs/minimal_test.yaml
+    task_family: timed_coordination
+    paper_role: flagship
+    expected_best_condition: local_structured_interactive_grounded
+    critical_rooms: [office, wet_lab]
+    critical_entities: [centrifuge_1, tech_1, tech_2, tech_3]
+    required_affordances:
+      - The coordinator must act through exact namespaced team action ids only.
+      - Shared equipment occupancy and timed completion must affect the live action surface.
+    forbidden_shortcuts:
+      - No multi-action turn or hidden shared-resource reservation outside the normal action loop.
+      - No completion without each technician executing one grounded centrifuge run.
+    scorer_expectations:
+      - Correct contention handling, timed waiting, and one-run-per-technician policy must determine success.
+      - Repeated runs, interrupted cycles, or coordination failures must lower score.
+    notes: Primary flagship for grounded timed coordination.
+  - scenario_name: branch_selection_under_uncertainty
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: decision_under_uncertainty
+    paper_role: challenge
+    expected_best_condition: mixed_or_split
+    critical_rooms: [office, main_wet_lab]
+    critical_entities: [triage_sample_1, centrifuge_1, pcr_1, legacy_pcr_mix]
+    required_affordances:
+      - Retrieve, store, centrifuge-start, wait, and rationale logging actions must remain grounded and separately auditable.
+      - The scarce reagent and alternative PCR branch must be present as observable state without creating a hidden hint.
+    forbidden_shortcuts:
+      - No direct branch-select or complete-triage action.
+      - No repeated PCR run should satisfy the scenario even if it produces progress-like behavior.
+      - No centrifuge completion credit before the timed equipment event fires.
+    scorer_expectations:
+      - Correct sample loading before centrifugation, one centrifuge run, PCR avoidance, timed completion, and rationale logging must determine success.
+      - Success depends on an observable load-before-spin event, not on the sample remaining in centrifuge_1 at the final state.
+      - Preserving legacy_pcr_mix is a required partial-credit component, not hidden state.
+    notes: v3 challenge task for grounded branch choice under explicit resource constraints.
+  - scenario_name: contamination_source_tracing
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: sterile_biology
+    paper_role: challenge
+    expected_best_condition: local_structured_interactive_grounded
+    critical_rooms: [main_wet_lab, tissue_culture]
+    critical_entities: [hela_exposed_1, hela_control_1, quarantine_zone, incubator_1]
+    required_affordances:
+      - BSL-2 PPE, tissue-culture entry, sample retrieval, quarantine-zone storage, and logging must be explicit actions.
+      - The control culture must remain visible as preserved state, not inferred from hidden metadata.
+    forbidden_shortcuts:
+      - No contamination-clearance action or automatic quarantine.
+      - No open pipette transfer of suspect or control cultures as a substitute for quarantine.
+      - No credit for moving the control culture out of incubator_1.
+    scorer_expectations:
+      - Quarantining the suspect culture, preserving the control, avoiding unsafe transfer, and logging the tracing decision must determine success.
+      - The tracing note should be judged by explicit suspect/quarantine/control content, not by one fixed keyword phrase.
+      - Missing any of these criteria must produce partial rather than full completion.
+    notes: v3 challenge task for sterile containment with an explicit preserved-control criterion.
+  - scenario_name: cold_chain_time_critical_transfer
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: timed_coordination
+    paper_role: challenge
+    expected_best_condition: local_structured_interactive_grounded
+    critical_rooms: [office, main_wet_lab, cold_room]
+    critical_entities: [enzyme_aliquot_1, centrifuge_1]
+    required_affordances:
+      - Local movement, retrieve/store, temperature-parameterized centrifuge start, wait, and return-to-cold-storage actions must be present.
+      - Timed equipment completion must be produced by the normal simulation clock.
+    forbidden_shortcuts:
+      - No direct cold-chain completion or non-local sample movement.
+      - No success before the 4 C centrifuge run completes.
+      - No hidden grace period beyond the declared eight-action cold-chain budget.
+    scorer_expectations:
+      - A 4 C spin, timed completion, final cold-room storage, completion logging, centrifuge availability, and bounded warm exposure must determine success.
+      - Completion logging should accept semantically explicit 4 C return notes, not only one literal wording of "cold-chain".
+      - Returning late should reduce completion even if final location is correct.
+    notes: v3 challenge task for timed sample logistics across rooms.
+  - scenario_name: emergency_triage_response
+    config_path: configs/labs/research_bsl2.yaml
+    task_family: local_safety_execution
+    paper_role: challenge
+    expected_best_condition: local_structured_interactive_grounded
+    critical_rooms: [office, main_wet_lab, chemical_storage]
+    critical_entities: [centrifuge_1, pellet_urgent_1, hcl_conc, spill_hood]
+    required_affordances:
+      - Stop-equipment, sample recovery, chemical PPE, fume-hood disposal, and incident logging actions must remain separate.
+      - The action trace must expose whether the centrifuge was stopped before HCl disposal.
+    forbidden_shortcuts:
+      - No chemical disposal before the active centrifuge hazard is stabilized.
+      - No HCl disposal outside a fume hood zone or without the required PPE.
+      - No automatic sample recovery from the centrifuge.
+    scorer_expectations:
+      - Equipment stabilization, sample recovery, spill disposal, correct triage order, incident logging, and safety compliance must determine success.
+      - Any reversed hazard order or unsafe chemical handling should fail full success.
+    notes: v3 challenge task for prioritized safety recovery with two simultaneous hazards.

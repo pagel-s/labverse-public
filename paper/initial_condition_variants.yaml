@@ -1,0 +1,128 @@
+schema_version: 1
+variants:
+  baseline:
+    description: "Frozen scenario setup without initial-condition overlays."
+    lab_overlays: {}
+
+  sensitivity_v1:
+    description: "Nuisance-only initial-condition overlay for sensitivity checks."
+    lab_overlays:
+      research_bsl2.yaml:
+        add_materials:
+          - id: variant_saline_1
+            name: Variant Saline Aliquot
+            room_id: main_wet_lab
+            zone_id: bench_1
+            quantity: 50.0
+            quantity_unit: mL
+          - id: variant_empty_tip_box_1
+            name: Variant Empty Tip Box
+            room_id: main_wet_lab
+            zone_id: bench_1
+            quantity: 0.0
+            quantity_unit: count
+        add_samples:
+          - id: variant_qc_tube_1
+            name: Variant QC Tube
+            sample_type: qc_control
+            room_id: cold_room
+            status: stored
+            bsl_level: 1
+            created_at: "2026-01-10T09:00:00Z"
+            created_by: pi_chen
+        add_persons:
+          - id: variant_observer_1
+            name: Variant Observer
+            role: technician
+            current_room_id: office
+            lab_group: chen_lab
+
+      minimal_test.yaml:
+        add_materials:
+          - id: variant_buffer_1
+            name: Variant Buffer
+            room_id: wet_lab
+            zone_id: bench_1
+            quantity: 25.0
+            quantity_unit: mL
+        add_samples:
+          - id: variant_qc_sample_1
+            name: Variant QC Sample
+            sample_type: qc_control
+            room_id: wet_lab
+            zone_id: bench_1
+            status: stored
+            bsl_level: 1
+            created_at: "2026-01-10T09:00:00Z"
+            created_by: tech_1
+        add_persons:
+          - id: variant_observer_1
+            name: Variant Observer
+            role: technician
+            current_room_id: office
+
+  sensitivity_v2:
+    description: "Second nuisance-only initial-condition overlay for sensitivity checks."
+    lab_overlays:
+      research_bsl2.yaml:
+        add_materials:
+          - id: variant_water_2
+            name: Variant Molecular Biology Grade Water
+            room_id: main_wet_lab
+            zone_id: bench_1
+            quantity: 100.0
+            quantity_unit: mL
+          - id: variant_label_roll_2
+            name: Variant Cryo Label Roll
+            room_id: office
+            quantity: 1.0
+            quantity_unit: roll
+          - id: variant_empty_box_2
+            name: Variant Empty Storage Box
+            room_id: cold_room
+            quantity: 1.0
+            quantity_unit: count
+        add_samples:
+          - id: variant_archive_sample_2
+            name: Variant Archived QC Extract
+            sample_type: qc_control
+            room_id: cold_room
+            status: archived
+            bsl_level: 1
+            created_at: "2026-01-11T11:00:00Z"
+            created_by: pi_chen
+        add_persons:
+          - id: variant_visitor_2
+            name: Variant Visiting Student
+            role: undergrad
+            current_room_id: office
+            lab_group: chen_lab
+
+      minimal_test.yaml:
+        add_materials:
+          - id: variant_water_2
+            name: Variant Water Aliquot
+            room_id: wet_lab
+            zone_id: bench_1
+            quantity: 40.0
+            quantity_unit: mL
+          - id: variant_label_roll_2
+            name: Variant Label Roll
+            room_id: office
+            quantity: 1.0
+            quantity_unit: roll
+        add_samples:
+          - id: variant_archive_sample_2
+            name: Variant Archived QC Sample
+            sample_type: qc_control
+            room_id: wet_lab
+            zone_id: bench_1
+            status: archived
+            bsl_level: 1
+            created_at: "2026-01-11T11:00:00Z"
+            created_by: tech_1
+        add_persons:
+          - id: variant_visitor_2
+            name: Variant Visitor
+            role: undergrad
+            current_room_id: office
