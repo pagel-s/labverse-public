@@ -220,16 +220,71 @@ function drawZoneFrames(
 const DEPTH = {
   GRID: 1,
   AMBIENT: 2,
-  PARTICLES: 3,
   ROOM_HIGHLIGHT: 5,
   EQUIP: 10,
   ACCESS: 12,
   ROOM_LABELS: 15,
   FOCUS: 18,
   AGENTS: 20,
-  HUD_BG: 1000,
-  HUD_TEXT: 1001,
 } as const;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function equipmentMarkerPosition(
+  room: Room,
+  rect: TileRect,
+  equipment: Equipment,
+  index: number,
+  count: number,
+): { x: number; y: number } {
+  const px = rect.tx * TILE;
+  const py = rect.ty * TILE;
+  const pw = rect.tw * TILE;
+  const ph = rect.th * TILE;
+  const minX = px + TILE * 1.75;
+  const maxX = px + pw - TILE * 1.75;
+  const minY = py + TILE * 2.6;
+  const maxY = py + ph - TILE * 2.2;
+  const zone = equipment.zone_id
+    ? room.zones.find((candidate) => candidate.id === equipment.zone_id)
+    : null;
+
+  if (zone) {
+    const scaleX = pw / Math.max(room.width, 1);
+    const scaleY = ph / Math.max(room.height, 1);
+    const zoneWidth = Math.max(TILE * 1.5, zone.width * scaleX);
+    const columns = Math.max(1, Math.min(4, Math.floor(zoneWidth / (TILE * 1.35))));
+    const col = index % columns;
+    const row = Math.floor(index / columns);
+    const rowCount = Math.max(1, Math.ceil(count / columns));
+    const rowSpacing = Math.min(TILE * 1.25, (maxY - minY) / rowCount);
+    const rawY = py + TILE * 2.1 + zone.position.y * scaleY;
+    const baseY = clamp(
+      rawY,
+      minY,
+      Math.max(minY, maxY - (rowCount - 1) * rowSpacing),
+    );
+    return {
+      x: clamp(
+        px + TILE + zone.position.x * scaleX + ((col + 1) / (columns + 1)) * zoneWidth,
+        minX,
+        maxX,
+      ),
+      y: baseY + row * rowSpacing,
+    };
+  }
+
+  const columns = Math.max(1, Math.min(4, count));
+  const col = index % columns;
+  const row = Math.floor(index / columns);
+  const usableWidth = Math.max(TILE, maxX - minX);
+  return {
+    x: clamp(minX + ((col + 1) / (columns + 1)) * usableWidth, minX, maxX),
+    y: clamp(minY + TILE * 0.8 + row * TILE * 1.35, minY, maxY),
+  };
+}
 
 type ClickCallback = (type: "room" | "agent" | "equipment", id: string) => void;
 
@@ -245,7 +300,6 @@ export class LabScene extends Phaser.Scene {
   private roomHitAreas: Phaser.GameObjects.Rectangle[] = [];
   private equipOverlays: Phaser.GameObjects.Container[] = [];
   private ambientGraphics: Phaser.GameObjects.Graphics | null = null;
-  private particleGraphics: Phaser.GameObjects.Graphics | null = null;
   private gridGraphics: Phaser.GameObjects.Graphics | null = null;
   private selectedRoomId: string | null = null;
   private hoveredRoomId: string | null = null;
@@ -261,15 +315,6 @@ export class LabScene extends Phaser.Scene {
   private mapW = 0;
   private mapH = 0;
   private highlightTime = 0;
-  private hudText: Phaser.GameObjects.Text | null = null;
-  private hudBg: Phaser.GameObjects.Graphics | null = null;
-  private readonly hudVisible = false;
-  private particles: Array<{
-    x: number; y: number; vx: number; vy: number;
-    color: number; alpha: number; roomType: string;
-    // Bounds for wrapping particles inside their room
-    bx: number; by: number; bw: number; bh: number;
-  }> = [];
   private lastWorld: WorldState | null = null;
   private proceduralGraphics: Phaser.GameObjects.Graphics | null = null;
   private generatedTilemap: Phaser.Tilemaps.Tilemap | null = null;
@@ -316,10 +361,6 @@ export class LabScene extends Phaser.Scene {
     this.ambientGraphics = this.add.graphics();
     this.ambientGraphics.setDepth(DEPTH.AMBIENT);
 
-    // Particle layer
-    this.particleGraphics = this.add.graphics();
-    this.particleGraphics.setDepth(DEPTH.PARTICLES);
-
     // Highlight graphics
     this.roomHighlight = this.add.graphics();
     this.roomHighlight.setDepth(DEPTH.ROOM_HIGHLIGHT);
@@ -328,19 +369,6 @@ export class LabScene extends Phaser.Scene {
 
     // Camera controls
     this.setupCamera(this.mapW, this.mapH);
-
-    // HUD overlay
-    this.hudBg = this.add.graphics();
-    this.hudBg.setScrollFactor(0);
-    this.hudBg.setDepth(DEPTH.HUD_BG);
-    this.hudText = this.add.text(16, 12, "", {
-      fontSize: "13px",
-      fontFamily: '"Avenir Next", "Segoe UI", sans-serif',
-      color: "#e0e8f0",
-      lineSpacing: 4,
-    });
-    this.hudText.setScrollFactor(0);
-    this.hudText.setDepth(DEPTH.HUD_TEXT);
 
     this.mapReady = true;
 
@@ -353,7 +381,6 @@ export class LabScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     this.highlightTime += delta;
     this.updateRoomHighlight();
-    this.updateParticles(delta);
   }
 
   /* ── External API ───────────────────────────────────── */
@@ -378,8 +405,6 @@ export class LabScene extends Phaser.Scene {
     this.syncEquipment(world);
     this.syncPersons(world);
     this.updateRoomHighlight();
-    this.spawnParticles(world);
-    this.updateHud(world);
   }
 
   syncPersons(world: WorldState): void {
@@ -392,9 +417,19 @@ export class LabScene extends Phaser.Scene {
       const room = world.lab.rooms[roomId];
       if (!room) continue;
 
-      persons.forEach((person, idx) => {
+      const zoneIndexes = new Map<string, number>();
+      persons.forEach((person) => {
         seen.add(person.id);
-        const pos = getPersonPixelPos(this.roomRects, room, roomId, person.current_zone_id, idx);
+        const zoneKey = person.current_zone_id ?? "__room__";
+        const zoneIndex = zoneIndexes.get(zoneKey) ?? 0;
+        zoneIndexes.set(zoneKey, zoneIndex + 1);
+        const pos = getPersonPixelPos(
+          this.roomRects,
+          room,
+          roomId,
+          person.current_zone_id,
+          zoneIndex,
+        );
         const existing = this.agents.get(person.id);
 
         if (existing) {
@@ -411,7 +446,6 @@ export class LabScene extends Phaser.Scene {
           sprite.on("pointerup", () => {
             if (!this.isDragging) this.onClick?.("agent", person.id);
           });
-          sprite.showActivity(person.current_activity);
           this.agents.set(person.id, sprite);
         }
         this.agentRooms.set(person.id, roomId);
@@ -506,6 +540,82 @@ export class LabScene extends Phaser.Scene {
     if (sprite) {
       this.spawnScenePulse(sprite.x, sprite.y - 14, color, "circle");
     }
+  }
+
+  captureScene(): Promise<string> {
+    for (const agent of this.agents.values()) {
+      agent.refreshActivityBubble();
+    }
+
+    this.cameras.main.setBackgroundColor(0xfbfaf7);
+    return new Promise((resolve, reject) => {
+      this.game.renderer.snapshot((snapshot) => {
+        this.cameras.main.setBackgroundColor(BG_COLOR);
+        if (snapshot instanceof HTMLImageElement) {
+          resolve(this.prepareCaptureImage(snapshot));
+          return;
+        }
+        reject(new Error("The replay renderer did not return an image."));
+      }, "image/png");
+    });
+  }
+
+  private prepareCaptureImage(snapshot: HTMLImageElement): string {
+    const source = document.createElement("canvas");
+    source.width = snapshot.naturalWidth;
+    source.height = snapshot.naturalHeight;
+    const sourceContext = source.getContext("2d", { willReadFrequently: true });
+    if (!sourceContext) return snapshot.src;
+    sourceContext.drawImage(snapshot, 0, 0);
+
+    const pixels = sourceContext.getImageData(0, 0, source.width, source.height).data;
+    let minX = source.width;
+    let minY = source.height;
+    let maxX = -1;
+    let maxY = -1;
+    const stride = 2;
+    for (let y = 0; y < source.height; y += stride) {
+      for (let x = 0; x < source.width; x += stride) {
+        const offset = (y * source.width + x) * 4;
+        const differsFromPaper =
+          Math.abs(pixels[offset] - 251) > 8 ||
+          Math.abs(pixels[offset + 1] - 250) > 8 ||
+          Math.abs(pixels[offset + 2] - 247) > 8;
+        if (pixels[offset + 3] > 16 && differsFromPaper) {
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        }
+      }
+    }
+
+    if (maxX < minX || maxY < minY) return snapshot.src;
+    const padding = 20;
+    const cropX = Math.max(0, minX - padding);
+    const cropY = Math.max(0, minY - padding);
+    const cropWidth = Math.min(source.width - cropX, maxX - minX + padding * 2);
+    const cropHeight = Math.min(source.height - cropY, maxY - minY + padding * 2);
+    const scale = Math.max(1, Math.min(2, 4096 / cropWidth, 4096 / cropHeight));
+
+    const output = document.createElement("canvas");
+    output.width = Math.round(cropWidth * scale);
+    output.height = Math.round(cropHeight * scale);
+    const outputContext = output.getContext("2d");
+    if (!outputContext) return snapshot.src;
+    outputContext.imageSmoothingEnabled = false;
+    outputContext.drawImage(
+      source,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      output.width,
+      output.height,
+    );
+    return output.toDataURL("image/png");
   }
 
   /* ── Private helpers ────────────────────────────────── */
@@ -1051,32 +1161,27 @@ export class LabScene extends Phaser.Scene {
       const room = world.lab.rooms[roomId];
       if (!rect || !room) continue;
 
-      const px = rect.tx * TILE;
-      const py = rect.ty * TILE;
-      const pw = rect.tw * TILE;
-      const ph = rect.th * TILE;
+      const zoneIndexes = new Map<string, number>();
+      const zoneCounts = new Map<string, number>();
+      const orderedEquipment = [...eqs].sort((left, right) => left.id.localeCompare(right.id));
+      for (const equipment of orderedEquipment) {
+        const key = equipment.zone_id ?? "__room__";
+        zoneCounts.set(key, (zoneCounts.get(key) ?? 0) + 1);
+      }
 
-      eqs.forEach((eq, idx) => {
+      orderedEquipment.forEach((eq) => {
         const tone = equipmentTone(eq.status);
         const color = EQUIP_STATUS_COLORS[tone] ?? EQUIP_STATUS_COLORS.idle;
-
-        // Position: zone-based or grid fallback
-        let ex: number, ey: number;
-        if (eq.zone_id && room.zones) {
-          const zone = room.zones.find((z) => z.id === eq.zone_id);
-          if (zone) {
-            const scaleX = pw / Math.max(room.width, 1);
-            const scaleY = ph / Math.max(room.height, 1);
-            ex = px + TILE + zone.position.x * scaleX + (idx % 2) * TILE * 1.5 + TILE * 0.5;
-            ey = py + TILE * 1.5 + zone.position.y * scaleY + Math.floor(idx / 2) * TILE + TILE;
-          } else {
-            ex = px + TILE * 2 + (idx % 4) * TILE * 2;
-            ey = py + TILE * 3 + Math.floor(idx / 4) * TILE * 2;
-          }
-        } else {
-          ex = px + TILE * 2 + (idx % 4) * TILE * 2;
-          ey = py + TILE * 3 + Math.floor(idx / 4) * TILE * 2;
-        }
+        const zoneKey = eq.zone_id ?? "__room__";
+        const zoneIndex = zoneIndexes.get(zoneKey) ?? 0;
+        zoneIndexes.set(zoneKey, zoneIndex + 1);
+        const { x: ex, y: ey } = equipmentMarkerPosition(
+          room,
+          rect,
+          eq,
+          zoneIndex,
+          zoneCounts.get(zoneKey) ?? 1,
+        );
         this.equipmentAnchors.set(eq.id, {
           x: ex,
           y: ey,
@@ -1129,21 +1234,9 @@ export class LabScene extends Phaser.Scene {
           });
         }
 
-        // Name label
-        const shortName = eq.name.length > 14 ? eq.name.slice(0, 12) + ".." : eq.name;
-        const nameLabel = this.add.text(0, 11, shortName, {
-          fontSize: "6px",
-          fontFamily: '"IBM Plex Mono", monospace',
-          color: "#9aa8b5",
-          stroke: "#2a2a2e",
-          strokeThickness: 2,
-        });
-        nameLabel.setOrigin(0.5, 0);
-        container.add(nameLabel);
-
         // Tooltip on hover
         const tooltip = this.add.text(12, -8, `${eq.name}\n${eq.status}`, {
-          fontSize: "8px",
+          fontSize: "10px",
           fontFamily: '"IBM Plex Mono", monospace',
           color: "#e0e0e0",
           backgroundColor: "#222222ee",
@@ -1155,6 +1248,7 @@ export class LabScene extends Phaser.Scene {
         dot.setInteractive({ useHandCursor: true });
         dot.on("pointerover", () => {
           tooltip.setVisible(true);
+          container.setDepth(DEPTH.AGENTS + 2);
           this.hoveredEquipmentId = eq.id;
           this.tweens.add({
             targets: container,
@@ -1166,6 +1260,7 @@ export class LabScene extends Phaser.Scene {
         });
         dot.on("pointerout", () => {
           tooltip.setVisible(false);
+          container.setDepth(DEPTH.EQUIP);
           if (this.hoveredEquipmentId === eq.id) {
             this.hoveredEquipmentId = null;
           }
@@ -1196,23 +1291,31 @@ export class LabScene extends Phaser.Scene {
       const room = world.lab.rooms[roomId];
       if (!room) continue;
 
-      const px = (rect.tx + 0.4) * TILE;
+      const roomX = rect.tx * TILE;
+      const roomWidth = rect.tw * TILE;
+      const px = roomX + 10;
       const py = (rect.ty + 0.2) * TILE;
       const profile = roomVisualProfile(room);
       const headerColor = 0x182028;
       const borderColor = hexToNumber(profile.accent);
+      const bslWidth = 38;
+      const bslX = roomX + roomWidth - bslWidth - 10;
+      const maxNameWidth = Math.max(52, bslX - px - 6);
 
       // Room name with background
       const bgG = this.add.graphics();
       bgG.setDepth(DEPTH.ROOM_LABELS);
       const name = this.add.text(px + 8, py + 4, room.name, {
-        fontSize: "13px",
+        fontSize: "15px",
         fontFamily: '"Avenir Next", "Segoe UI", sans-serif',
         color: "#eef4f8",
         fontStyle: "bold",
       });
       name.setDepth(DEPTH.ROOM_LABELS);
-      const bgW = name.width + 16;
+      while (name.width + 16 > maxNameWidth && name.text.length > 8) {
+        name.setText(name.text.slice(0, -2).trimEnd() + "…");
+      }
+      const bgW = Math.min(name.width + 16, maxNameWidth);
       const bgH = name.height + 8;
       bgG.fillStyle(headerColor, 0.94);
       bgG.fillRoundedRect(px, py, bgW, bgH, 4);
@@ -1224,13 +1327,12 @@ export class LabScene extends Phaser.Scene {
 
       // BSL badge
       const bslColor = BSL_BADGE_COLORS[room.bsl_level] ?? 0x7b8793;
-      const bslX = px + bgW + 6;
       const bslBg = this.add.graphics();
       bslBg.setDepth(DEPTH.ROOM_LABELS);
       bslBg.fillStyle(bslColor, 0.85);
-      bslBg.fillRoundedRect(bslX, py + 1, 38, bgH - 2, 3);
+      bslBg.fillRoundedRect(bslX, py + 1, bslWidth, bgH - 2, 3);
       const bslText = this.add.text(bslX + 19, py + bgH / 2, `BSL-${room.bsl_level}`, {
-        fontSize: "8px",
+        fontSize: "9px",
         fontFamily: '"IBM Plex Mono", monospace',
         color: "#ffffff",
         fontStyle: "bold",
@@ -1239,37 +1341,6 @@ export class LabScene extends Phaser.Scene {
       bslText.setDepth(DEPTH.ROOM_LABELS);
       this.roomLabels.push(bslBg, bslText);
 
-      // Room type subtitle
-      const meta = this.add.text(px + 8, py + bgH + 2, titleize(room.room_type), {
-        fontSize: "8px",
-        fontFamily: '"IBM Plex Mono", monospace',
-        color: "#b6c5cf",
-        stroke: "#1a1e24",
-        strokeThickness: 2,
-      });
-      meta.setDepth(DEPTH.ROOM_LABELS);
-      this.roomLabels.push(meta);
-
-      // Occupancy dots
-      const people = Object.values(world.persons).filter(
-        (p) => p.current_room_id === roomId,
-      );
-      const occX = (rect.tx + rect.tw - 0.5) * TILE;
-      const occY = py + 4;
-      const occG = this.add.graphics();
-      occG.setDepth(DEPTH.ROOM_LABELS);
-      const maxDots = Math.min(room.max_occupancy, 8);
-      for (let i = 0; i < maxDots; i++) {
-        const dx = occX - (maxDots - i) * 8;
-        if (i < people.length) {
-          occG.fillStyle(0x2d8a4e, 0.9);
-          occG.fillCircle(dx, occY + 5, 3);
-        } else {
-          occG.fillStyle(0x4a5568, 0.4);
-          occG.fillCircle(dx, occY + 5, 3);
-        }
-      }
-      this.roomLabels.push(occG);
     }
   }
 
@@ -1432,123 +1503,6 @@ export class LabScene extends Phaser.Scene {
     g.fillRect(px, py, pw, ph);
   }
 
-  private spawnParticles(world: WorldState): void {
-    this.particles = [];
-    for (const [roomId, rect] of Object.entries(this.roomRects)) {
-      const room = world.lab.rooms[roomId];
-      if (!room) continue;
-
-      const px = rect.tx * TILE + TILE;
-      const py = rect.ty * TILE + TILE;
-      const pw = rect.tw * TILE - TILE * 2;
-      const ph = rect.th * TILE - TILE * 2;
-      const profile = roomVisualProfile(room);
-      if (profile.particleColor === null || profile.particleCount === 0) {
-        continue;
-      }
-      const count = profile.particleCount;
-      const color = hexToNumber(profile.particleColor);
-      const roomType = room.room_type;
-
-      for (let i = 0; i < count; i++) {
-        const speed = room.room_type === "cold_room" ? 0.06 : 0.12;
-        this.particles.push({
-          x: px + Math.random() * pw,
-          y: py + Math.random() * ph,
-          vx: (Math.random() - 0.5) * speed,
-          vy: (Math.random() - 0.5) * speed - (room.room_type === "fume_hood_lab" ? 0.04 : 0),
-          color, alpha: 0.1 + Math.random() * 0.15, roomType,
-          bx: px, by: py, bw: pw, bh: ph,
-        });
-      }
-    }
-  }
-
-  private updateParticles(delta: number): void {
-    const g = this.particleGraphics;
-    if (!g || this.particles.length === 0) return;
-    g.clear();
-
-    const dt = delta * 0.06;
-    for (const p of this.particles) {
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      p.vx += (Math.random() - 0.5) * 0.003 * dt;
-      p.vy += (Math.random() - 0.5) * 0.003 * dt;
-
-      // Wrap within room bounds (not map bounds)
-      if (p.x < p.bx) p.x = p.bx + p.bw;
-      if (p.x > p.bx + p.bw) p.x = p.bx;
-      if (p.y < p.by) p.y = p.by + p.bh;
-      if (p.y > p.by + p.bh) p.y = p.by;
-
-      const shimmer = p.alpha * (0.7 + 0.3 * Math.sin(this.highlightTime * 0.002 + p.x * 0.1));
-      const radius = p.roomType === "cold_room" ? 1.8 : 1.3;
-      g.fillStyle(p.color, shimmer);
-      g.fillCircle(p.x, p.y, radius);
-    }
-  }
-
-  private updateHud(world: WorldState): void {
-    if (!this.hudText || !this.hudBg) return;
-    if (!this.hudVisible) {
-      this.hudText.setVisible(false);
-      this.hudBg.clear();
-      this.hudBg.setVisible(false);
-      return;
-    }
-
-    const labName = world.lab.name || "Lab";
-    const personCount = Object.keys(world.persons).length;
-    const roomCount = Object.keys(world.lab.rooms).length;
-    const runningEquipment = Object.values(world.equipment).filter(
-      (equipment) => equipmentTone(equipment.status) === "running",
-    ).length;
-    const attentionEquipment = Object.values(world.equipment).filter(
-      (equipment) => equipmentTone(equipment.status) === "attention",
-    ).length;
-
-    let focusLabel = "Facility overview";
-    let accent = 0x2ae8c0;
-    if (this.selectedEquipmentId) {
-      const equipment = world.equipment[this.selectedEquipmentId];
-      if (equipment) {
-        focusLabel = `Equipment · ${equipment.name} · ${titleize(equipment.status)}`;
-        accent = EQUIP_STATUS_COLORS[equipmentTone(equipment.status)] ?? accent;
-      }
-    } else if (this.selectedAgentId) {
-      const person = world.persons[this.selectedAgentId];
-      if (person) {
-        focusLabel = `Operator · ${person.name}${person.current_activity ? ` · ${person.current_activity}` : ""}`;
-        accent = 0x78d0bf;
-      }
-    } else if (this.selectedRoomId) {
-      const room = world.lab.rooms[this.selectedRoomId];
-      if (room) {
-        focusLabel = `Room · ${room.name} · BSL-${room.bsl_level} ${titleize(room.room_type)}`;
-        accent = hexToNumber(roomVisualProfile(room).accent);
-      }
-    }
-
-    this.hudText.setText(
-      [
-        labName,
-        focusLabel,
-        `${personCount} personnel · ${roomCount} rooms · ${runningEquipment} running`,
-        `${attentionEquipment} attention · ${Object.keys(world.samples).length} samples in system`,
-      ].join("\n"),
-    );
-
-    this.hudBg.clear();
-    const tw = this.hudText.width + 28;
-    const th = this.hudText.height + 20;
-    this.hudBg.fillStyle(0x0f1418, 0.84);
-    this.hudBg.fillRoundedRect(8, 6, tw, th, 6);
-    this.hudBg.fillStyle(accent, 0.92);
-    this.hudBg.fillRoundedRect(8, 6, tw, 4, 4);
-    this.hudBg.lineStyle(1, 0x415464, 0.58);
-    this.hudBg.strokeRoundedRect(8, 6, tw, th, 6);
-  }
 
   /** Draw rooms procedurally for non-Cronin labs. */
   private drawProceduralRooms(world: WorldState): void {

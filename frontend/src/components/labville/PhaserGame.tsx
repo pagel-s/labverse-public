@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 
 import type { WorldState } from "../../api/client";
 import { LabScene } from "./LabScene";
@@ -22,7 +22,11 @@ interface PhaserGameProps {
   } | null;
 }
 
-export default function PhaserGame({
+export interface PhaserGameHandle {
+  captureScene: () => Promise<string>;
+}
+
+const PhaserGame = forwardRef<PhaserGameHandle, PhaserGameProps>(function PhaserGame({
   world,
   selectedRoomId,
   selectedAgentId,
@@ -31,12 +35,21 @@ export default function PhaserGame({
   onSelectAgent,
   onSelectEquipment,
   actionFeedback,
-}: PhaserGameProps): JSX.Element {
+}: PhaserGameProps, ref): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
   const sceneRef = useRef<LabScene | null>(null);
   const sceneReady = useRef(false);
   const pendingWorld = useRef<WorldState | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    captureScene: async () => {
+      if (!sceneReady.current || !sceneRef.current) {
+        throw new Error("The replay scene is not ready yet.");
+      }
+      return sceneRef.current.captureScene();
+    },
+  }), []);
 
   // Store latest callbacks in refs so Phaser closures see current values
   const onSelectRoomRef = useRef(onSelectRoom);
@@ -149,4 +162,6 @@ export default function PhaserGame({
   }, [actionFeedback]);
 
   return <div className="labville-container" ref={containerRef} />;
-}
+});
+
+export default PhaserGame;

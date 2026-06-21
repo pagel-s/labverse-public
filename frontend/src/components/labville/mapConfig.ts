@@ -447,19 +447,31 @@ export function getPersonPixelPos(
   const roomPy = rect.ty * TILE;
   const roomPw = rect.tw * TILE;
   const roomPh = rect.th * TILE;
+  const minX = roomPx + TILE * 2;
+  const maxX = roomPx + roomPw - TILE * 2;
+  const minY = roomPy + TILE * 3;
+  const maxY = roomPy + roomPh - TILE * 2;
 
   if (zoneId && room.zones) {
     const zone = room.zones.find((candidate) => candidate.id === zoneId);
     if (zone) {
       const scaleX = roomPw / Math.max(room.width, 1);
       const scaleY = roomPh / Math.max(room.height, 1);
-      const zx = roomPx + TILE * 1.5 + zone.position.x * scaleX;
-      const zy = roomPy + TILE * 2.5 + zone.position.y * scaleY;
-      const col = personIndex % 2;
-      const row = Math.floor(personIndex / 2);
+      const zoneWidth = Math.max(TILE * 1.5, zone.width * scaleX);
+      const columns = Math.max(1, Math.min(3, Math.floor(zoneWidth / (TILE * 1.4))));
+      const col = personIndex % columns;
+      const row = Math.floor(personIndex / columns);
+      const zx = roomPx + TILE + zone.position.x * scaleX;
+      const zy =
+        roomPy +
+        TILE * 2.4 +
+        (zone.position.y + zone.height) * scaleY +
+        TILE;
+      const rowSpacing = TILE * 1.45;
+      const baseY = clamp(zy, minY, Math.max(minY, maxY - row * rowSpacing));
       return {
-        x: zx + col * TILE * 1.2,
-        y: zy + row * TILE * 1.2,
+        x: clamp(zx + ((col + 1) / (columns + 1)) * zoneWidth, minX, maxX),
+        y: baseY + row * rowSpacing,
       };
     }
   }
@@ -467,8 +479,8 @@ export function getPersonPixelPos(
   const col = personIndex % 3;
   const row = Math.floor(personIndex / 3);
   return {
-    x: roomPx + TILE * 3 + col * TILE * 1.5,
-    y: roomPy + roomPh - TILE * 3 - row * TILE * 1.5,
+    x: clamp(roomPx + TILE * 3 + col * TILE * 1.6, minX, maxX),
+    y: clamp(roomPy + roomPh - TILE * 2.5 - row * TILE * 1.5, minY, maxY),
   };
 }
 
@@ -493,6 +505,9 @@ export function groupPersonsByRoom(world: WorldState): Map<string, Person[]> {
     const current = byRoom.get(person.current_room_id) ?? [];
     current.push(person);
     byRoom.set(person.current_room_id, current);
+  }
+  for (const people of byRoom.values()) {
+    people.sort((left, right) => left.id.localeCompare(right.id));
   }
   return byRoom;
 }

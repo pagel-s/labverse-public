@@ -28,6 +28,7 @@ import {
 } from "../../api/client";
 
 import JsonTree from "./JsonTree";
+import type { PhaserGameHandle } from "../labville/PhaserGame";
 
 const PhaserGame = lazy(() => import("../labville/PhaserGame"));
 
@@ -132,11 +133,13 @@ export default function PaperView(): JSX.Element {
   const [loadingBundle, setLoadingBundle] = useState(false);
   const [loadingSteps, setLoadingSteps] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [savingScene, setSavingScene] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [replayMode, setReplayMode] = useState<ReplayMode>("after");
   const loadRunRequestId = useRef(0);
   const loadDetailRequestId = useRef(0);
   const filmstripRef = useRef<HTMLDivElement | null>(null);
+  const phaserGameRef = useRef<PhaserGameHandle | null>(null);
 
   const selectedRunSummary = useMemo(
     () => runs.find((run) => run.run_path === selectedRun) ?? null,
@@ -184,10 +187,9 @@ export default function PaperView(): JSX.Element {
           targetId: null,
           phase: replayPhase,
           outcome:
-            replayFrame.change_summary[0]
-            ?? (typeof (currentStep?.action_result as Record<string, unknown> | undefined)?.description === "string"
+            (typeof (currentStep?.action_result as Record<string, unknown> | undefined)?.description === "string"
               ? ((currentStep?.action_result as Record<string, unknown>).description as string)
-              : "Recorded paper step"),
+              : replayFrame.change_summary[0] ?? "Recorded paper step"),
         }
       : null;
 
@@ -394,6 +396,23 @@ export default function PaperView(): JSX.Element {
     if (next) setSelectedStep(next.step_index);
   }
 
+  async function saveScene(): Promise<void> {
+    if (!phaserGameRef.current || !selectedRunSummary || selectedStep === null) return;
+    setSavingScene(true);
+    try {
+      const source = await phaserGameRef.current.captureScene();
+      const scenario = (selectedRunSummary.scenario ?? "replay").replace(/[^a-z0-9_-]+/gi, "-");
+      const link = document.createElement("a");
+      link.href = source;
+      link.download = `labverse-${scenario}-step-${selectedStep}-${replayMode}.png`;
+      link.click();
+    } catch (captureError) {
+      setError(captureError instanceof Error ? captureError.message : "Could not save the replay scene.");
+    } finally {
+      setSavingScene(false);
+    }
+  }
+
   return (
     <div className="paper-studio">
       {/* ── Bundle bar ─────────────────────────────────────── */}
@@ -567,6 +586,7 @@ export default function PaperView(): JSX.Element {
                 }
               >
                 <PhaserGame
+                  ref={phaserGameRef}
                   actionFeedback={replayFeedback}
                   onSelectAgent={() => {}}
                   onSelectEquipment={() => {}}
@@ -633,6 +653,15 @@ export default function PaperView(): JSX.Element {
                 title="Next step (→ / j)"
               >
                 Next<kbd>→</kbd>
+              </button>
+              <button
+                className="btn-secondary"
+                disabled={!replayWorld || savingScene}
+                onClick={() => void saveScene()}
+                type="button"
+                title="Save the current replay scene as a PNG"
+              >
+                {savingScene ? "Saving…" : "Save scene"}
               </button>
             </div>
 

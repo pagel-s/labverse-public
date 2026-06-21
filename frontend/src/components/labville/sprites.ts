@@ -24,14 +24,15 @@ const CHAR_W = 20;
 const CHAR_H = 28;
 
 const BUBBLE_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
-  fontSize: "9px",
-  fontFamily: '"IBM Plex Mono", monospace',
-  color: "#2b2b2b",
-  wordWrap: { width: 100 },
+  fontSize: "12px",
+  fontFamily: '"Fragment Mono", monospace',
+  color: "#142126",
+  lineSpacing: 2,
+  wordWrap: { width: 168 },
 };
 
 const NAME_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
-  fontSize: "8px",
+  fontSize: "10px",
   fontFamily: '"Avenir Next", "Segoe UI", sans-serif',
   color: "#e8ecf0",
   fontStyle: "bold",
@@ -49,7 +50,6 @@ export class AgentSprite extends Phaser.GameObjects.Container {
   private shadow: Phaser.GameObjects.Ellipse;
   private currentActivity: string | null = null;
   private bubbleTimer: Phaser.Time.TimerEvent | null = null;
-  private bodyOffset = -4;
 
   constructor(scene: Phaser.Scene, person: Person, x: number, y: number) {
     super(scene, x, y);
@@ -87,8 +87,6 @@ export class AgentSprite extends Phaser.GameObjects.Container {
         this.add(this.charSprite);
       }
     }
-    this.bodyOffset = this.charSprite ? -4 : 0;
-
     // Fallback colored disc with initials (if no sprite)
     this.disc = new Phaser.GameObjects.Ellipse(scene, 0, 0, 24, 24, color, 1);
     this.disc.setStrokeStyle(2, 0xffffff, 0.9);
@@ -120,8 +118,6 @@ export class AgentSprite extends Phaser.GameObjects.Container {
     // Draw name background
     this.drawNameBg();
 
-    this.startIdleMotion();
-
     // Make interactive
     this.setSize(32, 40);
     this.setInteractive({ useHandCursor: true });
@@ -135,44 +131,6 @@ export class AgentSprite extends Phaser.GameObjects.Container {
     const th = this.nameTag.height + 2;
     this.nameTagBg.fillStyle(0x1a1e24, 0.6);
     this.nameTagBg.fillRoundedRect(-tw / 2, 19, tw, th, 3);
-  }
-
-  private startIdleMotion(): void {
-    const bodyTargets: Array<
-      Phaser.GameObjects.Image | Phaser.GameObjects.Ellipse | Phaser.GameObjects.Text
-    > = [this.charSprite ?? this.disc];
-    if (!this.charSprite) {
-      bodyTargets.push(this.label);
-    }
-
-    this.scene.tweens.add({
-      targets: bodyTargets,
-      y: this.bodyOffset - 1.5,
-      duration: 1500 + Math.random() * 450,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.easeInOut",
-    });
-
-    this.scene.tweens.add({
-      targets: [this.nameTag, this.nameTagBg],
-      y: "+=0.8",
-      duration: 1500 + Math.random() * 450,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.easeInOut",
-    });
-
-    this.scene.tweens.add({
-      targets: this.shadow,
-      scaleX: 0.92,
-      scaleY: 0.88,
-      alpha: 0.14,
-      duration: 1500 + Math.random() * 450,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.easeInOut",
-    });
   }
 
   /** Tween-move to a new pixel position. */
@@ -277,8 +235,8 @@ export class AgentSprite extends Phaser.GameObjects.Container {
   }
 
   /** Show activity speech bubble above agent. */
-  showActivity(text: string | null): void {
-    if (text === this.currentActivity) return;
+  showActivity(text: string | null, force = false): void {
+    if (text === this.currentActivity && !force) return;
     this.currentActivity = text;
 
     if (this.bubble) {
@@ -291,18 +249,18 @@ export class AgentSprite extends Phaser.GameObjects.Container {
     }
     if (!text) return;
 
-    const trimmed = text.length > 40 ? text.slice(0, 38) + "..." : text;
-    const bubbleText = new Phaser.GameObjects.Text(this.scene, 6, 4, trimmed, BUBBLE_STYLE);
-    const tw = Math.min(bubbleText.width + 12, 112);
-    const th = bubbleText.height + 8;
+    const trimmed = text.length > 64 ? text.slice(0, 61) + "..." : text;
+    const bubbleText = new Phaser.GameObjects.Text(this.scene, 8, 6, trimmed, BUBBLE_STYLE);
+    const tw = Math.min(bubbleText.width + 16, 184);
+    const th = bubbleText.height + 12;
 
     const bg = new Phaser.GameObjects.Graphics(this.scene);
-    bg.fillStyle(0xffffff, 0.94);
-    bg.lineStyle(1, 0xcccccc, 0.6);
+    bg.fillStyle(0xfbfaf7, 1);
+    bg.lineStyle(1.5, 0x527e91, 0.95);
     bg.fillRoundedRect(0, 0, tw, th, 5);
     bg.strokeRoundedRect(0, 0, tw, th, 5);
     // Triangle pointer
-    bg.fillStyle(0xffffff, 0.94);
+    bg.fillStyle(0xfbfaf7, 1);
     bg.fillTriangle(tw / 2 - 4, th, tw / 2, th + 6, tw / 2 + 4, th);
 
     this.bubble = new Phaser.GameObjects.Container(this.scene, -tw / 2, -th - 26);
@@ -310,7 +268,7 @@ export class AgentSprite extends Phaser.GameObjects.Container {
     this.bubble.add(bubbleText);
     this.add(this.bubble);
 
-    this.bubbleTimer = this.scene.time.delayedCall(5000, () => {
+    this.bubbleTimer = this.scene.time.delayedCall(8000, () => {
       if (this.bubble) {
         this.scene.tweens.add({
           targets: this.bubble,
@@ -325,12 +283,17 @@ export class AgentSprite extends Phaser.GameObjects.Container {
     });
   }
 
+  refreshActivityBubble(): void {
+    if (this.currentActivity) {
+      this.showActivity(this.currentActivity, true);
+    }
+  }
+
   /** Update from new person data. */
   updatePerson(person: Person): void {
     const color = ROLE_COLORS[person.role] ?? 0x6b7a8c;
     this.disc.setFillStyle(color, 1);
     this.label.setText(initials(person.name));
     this.nameTag.setText(person.name.split(" ")[0] ?? "");
-    this.showActivity(person.current_activity);
   }
 }
