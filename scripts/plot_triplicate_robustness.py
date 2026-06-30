@@ -1,8 +1,9 @@
 """Figure 4: decoding-noise robustness from the temp-0.2 triplicate bundle.
 
-Per-condition mean success with error bars (std across 3 replications), with the
-temperature-0 canonical point estimate overlaid. Matches the journal/styled
-figure theme. Writes Figure4.{png,pdf} to the manuscript figures dir.
+Per-interface mean success (bars) with the three replications shown as points
+and the std as a capped error bar; the temperature-0 canonical estimate is
+overlaid as an open diamond. Styled to match the journal figure family
+(panel-header typography, green interface gradient, off-white paper).
 
 Run: .venv/bin/python scripts/plot_triplicate_robustness.py [--out DIR]
 """
@@ -19,17 +20,19 @@ import matplotlib as mpl
 
 mpl.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 ROOT = Path(__file__).resolve().parents[1]
 TRIP = ROOT / "paper_runs/triplicate-sensitivity_v2/results.jsonl"
 CANON = ROOT / "paper_runs/initial-state-perturbation-2/results.jsonl"
 
-PAPER, INK, MUTED, HAIRLINE = "#fcfbf7", "#20242a", "#747b84", "#c9c1b4"
+PAPER, INK, MUTED, HAIRLINE, GRID = "#fcfbf7", "#20242a", "#747b84", "#c9c1b4", "#e7e0d4"
+# Green interface gradient, matching the paper's planner-condition mapping.
 COND = [
     ("local_structured_interactive_grounded", "Local\nstructured", "#c7e9c0"),
     ("local_narrative_interactive_grounded", "Local\nnarrative", "#a1d99b"),
     ("global_structured_interactive_grounded", "Global\nstructured", "#74c476"),
-    ("global_one_shot_planner", "Global\none-shot", "#31a354"),
+    ("global_one_shot_planner", "One-shot", "#31a354"),
 ]
 INFRA = [
     "Isolated subprocess crashed", "object is not subscriptable", "has no attribute",
@@ -63,8 +66,8 @@ def set_theme() -> None:
         {
             "figure.facecolor": PAPER, "axes.facecolor": PAPER, "savefig.facecolor": PAPER,
             "font.family": "DejaVu Sans", "font.size": 7.0, "axes.titlesize": 8.0,
-            "axes.labelsize": 7.0, "xtick.labelsize": 6.5, "ytick.labelsize": 6.5,
-            "legend.fontsize": 6.4, "axes.linewidth": 0.65, "axes.edgecolor": HAIRLINE,
+            "axes.labelsize": 7.5, "xtick.labelsize": 7.0, "ytick.labelsize": 7.0,
+            "legend.fontsize": 6.6, "axes.linewidth": 0.65, "axes.edgecolor": HAIRLINE,
             "xtick.color": "#343941", "ytick.color": "#343941", "axes.labelcolor": "#343941",
             "pdf.fonttype": 42, "ps.fonttype": 42, "svg.fonttype": "none", "savefig.dpi": 450,
         }
@@ -88,54 +91,77 @@ def main() -> None:
         cells = [int(bool(r["success"])) for r in canon if r["condition"] == cond]
         canon_rate[cond] = 100 * (sum(cells) / len(cells)) if cells else 0.0
 
-    means, sds, labels, colors, canon_pts = [], [], [], [], []
-    for cond, label, color in COND:
+    set_theme()
+    fig, ax = plt.subplots(figsize=(5.6, 2.6))
+    xs = list(range(len(COND)))
+    rep_offsets = (-0.13, 0.0, 0.13)
+
+    for x, (cond, _, color) in zip(xs, COND):
         rep_rates = [
-            sum(v) / len(v)
+            100 * (sum(v) / len(v))
             for rep in (1, 2, 3)
             if (v := by_cond_rep[cond].get(rep))
         ]
         m, sd = mean_sd(rep_rates)
-        means.append(100 * m)
-        sds.append(100 * sd)
-        labels.append(label)
-        colors.append(color)
-        canon_pts.append(canon_rate[cond])
+        # mean bar
+        ax.bar(x, m, width=0.58, color=color, edgecolor=INK, linewidth=0.6, zorder=2)
+        # std whisker
+        ax.errorbar(
+            x, m, yerr=sd, fmt="none", ecolor=INK, elinewidth=0.9, capsize=3.0,
+            capthick=0.9, zorder=4,
+        )
+        # individual replication points (the robustness evidence)
+        for off, rr in zip(rep_offsets, rep_rates):
+            ax.plot(
+                x + off, rr, marker="o", markersize=2.8, markerfacecolor=PAPER,
+                markeredgecolor=INK, markeredgewidth=0.7, zorder=5,
+            )
+        # temperature-0 canonical estimate
+        ax.plot(
+            x, canon_rate[cond], marker="D", markersize=4.6, markerfacecolor="none",
+            markeredgecolor="#a4746a", markeredgewidth=1.0, zorder=6,
+        )
+        ax.text(x, m + sd + 2.6, f"{m:.0f}", ha="center", va="bottom", fontsize=6.6, color=MUTED)
 
-    set_theme()
-    fig, ax = plt.subplots(figsize=(3.4, 2.5))
-    x = range(len(COND))
-    ax.bar(
-        x, means, yerr=sds, width=0.62, color=colors, edgecolor=INK, linewidth=0.6,
-        error_kw={"ecolor": INK, "elinewidth": 0.9, "capsize": 3, "capthick": 0.9},
-        zorder=2,
-    )
-    # temperature-0 point estimate as a reference marker
-    ax.scatter(
-        x, canon_pts, marker="D", s=14, facecolor=PAPER, edgecolor=INK,
-        linewidth=0.8, zorder=3, label="Temp 0 (canonical)",
-    )
-    for xi, m, sd in zip(x, means, sds):
-        ax.text(xi, m + sd + 2.2, f"{m:.0f}", ha="center", va="bottom", fontsize=6.3, color=INK)
-
-    ax.set_ylim(0, 85)
+    ax.set_ylim(0, 82)
+    ax.set_yticks(range(0, 81, 20))
     ax.set_ylabel("Mean task success (%)")
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(labels)
-    ax.yaxis.grid(True, color="#e7e0d4", linewidth=0.6, zorder=0)
+    ax.set_xticks(xs)
+    ax.set_xticklabels([lab for _, lab, _ in COND])
+    ax.set_xlim(-0.6, len(COND) - 0.4)
+    ax.yaxis.grid(True, color=GRID, linewidth=0.6, zorder=0)
     ax.set_axisbelow(True)
     for spine in ("top", "right"):
         ax.spines[spine].set_visible(False)
-    ax.legend(loc="upper left", frameon=False, handletextpad=0.4)
-    ax.set_title("Robustness to decoding noise (temp 0.2, 3 reps)", color=INK)
-    fig.tight_layout(pad=0.4)
 
+    # panel-header style, matching the journal figures (bold, lowercase, top-left)
+    ax.text(
+        -0.075, 1.08, "a", transform=ax.transAxes, fontsize=9.5, fontweight="bold",
+        color=INK, ha="left", va="bottom",
+    )
+    ax.text(
+        0.0, 1.08, "success is stable across replications (temperature 0.2)",
+        transform=ax.transAxes, fontsize=8.0, fontweight="bold", color=INK,
+        ha="left", va="bottom",
+    )
+
+    handles = [
+        Line2D([0], [0], marker="o", linestyle="none", markerfacecolor=PAPER,
+               markeredgecolor=INK, markeredgewidth=0.7, markersize=3.2,
+               label="Replication (n=3)"),
+        Line2D([0], [0], marker="D", linestyle="none", markerfacecolor="none",
+               markeredgecolor="#a4746a", markeredgewidth=1.0, markersize=4.2,
+               label="Temperature 0"),
+    ]
+    ax.legend(handles=handles, loc="upper left", frameon=False, handletextpad=0.3,
+              borderaxespad=0.2, labelspacing=0.25)
+
+    fig.tight_layout(pad=0.5)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     for ext in ("png", "pdf"):
         fig.savefig(out / f"{args.stem}.{ext}", bbox_inches="tight")
     print(f"wrote {out/args.stem}.png and .pdf")
-    print("bars (mean±sd):", [f"{l.replace(chr(10),' ')}: {m:.1f}±{s:.1f}" for l, m, s in zip(labels, means, sds)])
 
 
 if __name__ == "__main__":
