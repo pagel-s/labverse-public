@@ -23,8 +23,8 @@ from matplotlib.patches import Patch
 ROOT = Path(__file__).resolve().parents[1]
 CANON = ROOT / "paper_runs/initial-state-perturbation-2/results.jsonl"
 
-PAPER, INK, MUTED, HAIRLINE = "#fcfbf7", "#20242a", "#747b84", "#c9c1b4"
-FAIL_FILL, SUCCESS_FILL = "#efe9dc", "#31a354"  # warm-paper miss vs paper green hit
+PAPER, INK, MUTED, HAIRLINE = "#ffffff", "#20242a", "#747b84", "#c9c1b4"
+FAIL_FILL, SUCCESS_FILL = "#ededed", "#31a354"  # neutral miss vs green hit
 
 MODELS = [
     ("ollama/gemma4:31b", "Gemma 31B"),
@@ -114,8 +114,7 @@ def main() -> None:
         loc="upper right", bbox_to_anchor=(0.995, 1.02), frameon=False, ncol=2,
         handlelength=1.0, columnspacing=1.1, fontsize=7.0,
     )
-    fig.text(0.012, 1.005, "a", fontsize=9.5, fontweight="bold", color=INK, va="top")
-    fig.text(0.052, 1.005, "scenario-level success in the canonical state",
+    fig.text(0.012, 1.005, "Scenario-level success in the canonical state",
              fontsize=8.5, fontweight="bold", color=INK, va="top")
 
     fig.tight_layout(rect=(0, 0, 1, 0.94), h_pad=1.4, w_pad=2.0)

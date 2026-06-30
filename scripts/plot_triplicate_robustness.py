@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TRIP = ROOT / "paper_runs/triplicate-sensitivity_v2/results.jsonl"
 CANON = ROOT / "paper_runs/initial-state-perturbation-2/results.jsonl"
 
-PAPER, INK, MUTED, HAIRLINE, GRID = "#fcfbf7", "#20242a", "#747b84", "#c9c1b4", "#e7e0d4"
+PAPER, INK, MUTED, HAIRLINE, GRID = "#ffffff", "#20242a", "#747b84", "#c9c1b4", "#e7e0d4"
 # Green interface gradient, matching the paper's planner-condition mapping.
 COND = [
     ("local_structured_interactive_grounded", "Local\nstructured", "#c7e9c0"),
@@ -104,7 +104,7 @@ def main() -> None:
         ]
         m, sd = mean_sd(rep_rates)
         # mean bar
-        ax.bar(x, m, width=0.58, color=color, edgecolor=INK, linewidth=0.6, zorder=2)
+        ax.bar(x, m, width=0.42, color=color, edgecolor="none", zorder=2)
         # std whisker
         ax.errorbar(
             x, m, yerr=sd, fmt="none", ecolor=INK, elinewidth=0.9, capsize=3.0,
@@ -134,13 +134,8 @@ def main() -> None:
     for spine in ("top", "right"):
         ax.spines[spine].set_visible(False)
 
-    # panel-header style, matching the journal figures (bold, lowercase, top-left)
     ax.text(
-        -0.075, 1.08, "a", transform=ax.transAxes, fontsize=9.5, fontweight="bold",
-        color=INK, ha="left", va="bottom",
-    )
-    ax.text(
-        0.0, 1.08, "success is stable across replications (temperature 0.2)",
+        0.0, 1.04, "Success is stable across replications (temperature 0.2)",
         transform=ax.transAxes, fontsize=8.0, fontweight="bold", color=INK,
         ha="left", va="bottom",
     )
