@@ -48,17 +48,17 @@ GRID = "#e7e0d4"
 HAIRLINE = "#c9c1b4"
 
 MODEL_COLORS = {
-    "ollama/gemma4:31b": "#4f8d86",
-    "ollama/gemma4:26b": "#6f8fb3",
-    "ollama/qwen3.5:27b": "#c59b4a",
-    "ollama/mistral-small3.2:24b": "#9b6b62",
+    "ollama/gemma4:31b": "#3182bd",
+    "ollama/gemma4:26b": "#6baed6",
+    "ollama/qwen3.5:27b": "#9ecae1",
+    "ollama/mistral-small3.2:24b": "#c6dbef",
 }
 
 PLANNER_COLORS = {
-    "local_structured_interactive_grounded": "#7f8790",
-    "local_narrative_interactive_grounded": "#92b7ae",
-    "global_structured_interactive_grounded": "#91a7bd",
-    "global_one_shot_planner": "#c8a761",
+    "local_structured_interactive_grounded": "#c7e9c0",
+    "local_narrative_interactive_grounded": "#a1d99b",
+    "global_structured_interactive_grounded": "#74c476",
+    "global_one_shot_planner": "#31a354",
 }
 
 FAILURE_COLORS = {
@@ -69,9 +69,9 @@ FAILURE_COLORS = {
 }
 
 DIFFICULTY_COLORS = {
-    "low": "#a4746a",
-    "mid": "#c59b4a",
-    "high": "#4f8d86",
+    "low": "#f7593f",
+    "mid": "#fee838",
+    "high": "#62bb6d",
 }
 
 CONDITION_COMPACT = {

@@ -52,17 +52,17 @@ RANK_GRAY = "#9aa0a6"
 ROW_SUMMARY = "#5f6c73"
 
 MODEL_COLORS = {
-    "ollama/gemma4:31b": "#4f8d86",
-    "ollama/gemma4:26b": "#6f8fb3",
-    "ollama/qwen3.5:27b": "#c59b4a",
-    "ollama/mistral-small3.2:24b": "#9b6b62",
+    "ollama/gemma4:31b": "#e0ebeb",
+    "ollama/gemma4:26b": "#c0d7d7",
+    "ollama/qwen3.5:27b": "#a3c1c3",
+    "ollama/mistral-small3.2:24b": "#8ea4ae",
 }
 
 FAILURE_COLORS = {
-    "Behavioral/task failure": "#c99b55",
-    "Format/argument failure": "#99a16b",
-    "Grounding/interface failure": "#7896b1",
-    "Provider/runner failure": "#a4746a",
+    "Behavioral/task failure": "#a6cee3",
+    "Format/argument failure": "#b2df8a",
+    "Grounding/interface failure": "#fb9a99",
+    "Provider/runner failure": "#fdbf6f",
 }
 
 CONDITION_COMPACT = {

@@ -383,7 +383,7 @@ export interface PaperBundleStatus {
   latest_run: string | null;
   validation_ok: boolean;
   validation_issues: string[];
-  ready_for_scale: boolean;
+  diagnostics_clear: boolean;
   blocking_reasons: string[];
 }
 

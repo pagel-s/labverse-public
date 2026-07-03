@@ -27,7 +27,7 @@ HEALTH_MEAN_TOOL_RETRY_SCALE_LIMIT = 1.0
 # state and action surface into a single prompt, so both its single-turn
 # maximum and its per-run mean are legitimately much larger than interactive
 # budgets. Flagging one-shot runs under the interactive thresholds would
-# produce false "scale-blocked" warnings for the condition that the current paper
+# produce false warnings for the condition that the current paper
 # is specifically trying to evaluate.
 CONDITION_SINGLE_TURN_PROMPT_TOKEN_BLOCKING: dict[str, int] = {
     CONDITION_GLOBAL_ONE_SHOT_PLANNER: 200_000,
@@ -121,7 +121,7 @@ class PipelineHealthReport(BaseModel):
     max_completion_tokens_single_turn: int
     provider_error_rows: int
     unexpected_error_rows: int
-    ready_for_scale: bool = False
+    diagnostics_clear: bool = False
     blocking_reasons: list[str] = Field(default_factory=list)
     low_completion_rows: list[str] = Field(default_factory=list)
     high_token_rows: list[str] = Field(default_factory=list)
@@ -184,7 +184,7 @@ def build_pipeline_health_report(bundle_dir: str | Path) -> PipelineHealthReport
             max_completion_tokens_single_turn=0,
             provider_error_rows=0,
             unexpected_error_rows=0,
-            ready_for_scale=False,
+            diagnostics_clear=False,
             blocking_reasons=[
                 *list(validation.issues),
                 "No results rows were found in the bundle.",
@@ -235,7 +235,7 @@ def build_pipeline_health_report(bundle_dir: str | Path) -> PipelineHealthReport
     if high_single_turn_prompt_rows:
         warnings.append(
             f"{len(high_single_turn_prompt_rows)} runs exceeded their condition-specific "
-            "single-turn prompt-token scale limit."
+            "single-turn prompt-token diagnostic limit."
         )
     if artifact_integrity_rows:
         warnings.append(f"{len(artifact_integrity_rows)} runs recorded artifact-integrity issues.")
@@ -306,13 +306,13 @@ def build_pipeline_health_report(bundle_dir: str | Path) -> PipelineHealthReport
         )
     if blocking_high_token_rows:
         blocking_reasons.append(
-            f"{len(blocking_high_token_rows)} run(s) exceeded the per-run prompt-token scale "
+            f"{len(blocking_high_token_rows)} run(s) exceeded the per-run prompt-token diagnostic "
             f"limit ({HEALTH_PROMPT_TOKEN_BLOCKING})."
         )
     if high_single_turn_prompt_rows:
         blocking_reasons.append(
             f"{len(high_single_turn_prompt_rows)} run(s) exceeded their condition-specific "
-            "single-turn prompt-token scale limit."
+            "single-turn prompt-token diagnostic limit."
         )
     mean_invalid_action_outputs = sum(record.invalid_action_outputs for record in records) / len(
         records
@@ -339,12 +339,12 @@ def build_pipeline_health_report(bundle_dir: str | Path) -> PipelineHealthReport
     )
     if mean_invalid_action_outputs > HEALTH_MEAN_INVALID_TOOL_CALLS_SCALE_LIMIT:
         blocking_reasons.append(
-            "Mean invalid action outputs exceeded the scale limit "
+            "Mean invalid action outputs exceeded the diagnostic limit "
             f"({HEALTH_MEAN_INVALID_TOOL_CALLS_SCALE_LIMIT:.1f})."
         )
     if mean_action_output_retry_count > HEALTH_MEAN_TOOL_RETRY_SCALE_LIMIT:
         blocking_reasons.append(
-            "Mean action-output retries exceeded the scale limit "
+            "Mean action-output retries exceeded the diagnostic limit "
             f"({HEALTH_MEAN_TOOL_RETRY_SCALE_LIMIT:.1f})."
         )
 
@@ -385,7 +385,7 @@ def build_pipeline_health_report(bundle_dir: str | Path) -> PipelineHealthReport
             if _effective_error_taxonomy(record)
             in {"provider_failure", "artifact_integrity_failure", "runner_failure"}
         ),
-        ready_for_scale=not blocking_reasons,
+        diagnostics_clear=not blocking_reasons,
         blocking_reasons=blocking_reasons,
         low_completion_rows=low_completion_rows,
         high_token_rows=high_token_rows,
@@ -414,7 +414,7 @@ def write_pipeline_health_report(bundle_dir: str | Path) -> Path:
         "# Pipeline Health",
         "",
         f"- Bundle valid: `{report.bundle_valid}`",
-        f"- Ready for scale: `{report.ready_for_scale}`",
+        f"- Diagnostics clear: `{report.diagnostics_clear}`",
         f"- Completed runs: `{report.completed_runs}/{report.total_expected_runs}`",
         f"- Running runs: `{len(report.running_runs)}`",
         f"- Total runs: `{report.total_runs}`",

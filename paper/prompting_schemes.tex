@@ -1,0 +1,347 @@
+% Supplementary prompting-methods fragment for the LabVerse manuscript.
+% Required preamble packages:
+% \usepackage{booktabs}
+% \usepackage{tabularx}
+% \usepackage{array}
+
+\subsection{Prompting schemes and information conditions}
+\label{sec:prompting_schemes}
+
+LabVerse evaluates four prompting conditions that separate three design axes:
+observation representation (structured versus narrative), state scope (local
+versus global), and control regime (interactive versus one-shot). The three
+interactive conditions use the same task contract, behavioral instructions,
+turn status, action candidates, response schema, and simulator feedback. Their
+only intended prompt-level difference is the representation and scope of the
+state supplied to the model. The global one-shot planner is a distinct planning
+baseline: it receives the initial global state once, emits a complete plan, and
+does not observe execution feedback or replan.
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\caption{Primary prompting conditions. ``Global summary'' denotes the compact,
+complete whole-laboratory state supplied to the global interactive condition;
+``full state'' denotes the complete initial simulator state supplied to the
+one-shot planner.}
+\label{tab:prompt_conditions}
+\begin{tabularx}{\linewidth}{
+    >{\raggedright\arraybackslash}p{0.18\linewidth}
+    >{\raggedright\arraybackslash}p{0.13\linewidth}
+    >{\raggedright\arraybackslash}p{0.24\linewidth}
+    >{\raggedright\arraybackslash}p{0.21\linewidth}
+    >{\raggedright\arraybackslash}X
+}
+\toprule
+\textbf{Condition} & \textbf{Control} & \textbf{State supplied} &
+\textbf{Model output} & \textbf{Post-action information} \\
+\midrule
+Local structured interactive & One action per call & Structured observation of
+the actor's current room and visible entities & One current
+\texttt{candidate\_ref}, with free parameters if required & Action result,
+recent events, bounded trajectory, and updated local state \\
+Local narrative interactive & One action per call & Narrative rendering of the
+same local perceptual scope & Same interactive JSON contract & Same feedback
+and trajectory contract \\
+Global structured interactive & One action per call & Structured local
+observation plus compact complete global-state JSON & Same interactive JSON
+contract & Same feedback and trajectory contract, plus updated global summary \\
+Global one-shot planner & One complete plan per call & Initial local context,
+complete initial world-state JSON, and valid-ID inventory & JSON array of
+canonical verbs, target IDs, and parameters & None during planning; the frozen
+plan is subsequently replayed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Shared scenario task contract}
+
+For a given scenario, all four conditions receive the same model-facing task
+contract. It is generated from the versioned scenario specification and has the
+following semantic fields:
+\begin{quote}
+\begin{verbatim}
+Objective: <scenario objective>
+Known requirements:
+- <requirement 1>
+- ...
+Required outputs:
+- <required output 1>
+- ...
+Safety constraints:
+- <scenario-specific safety constraint 1>
+- ...
+Intentional unknowns:
+- <information that must be discovered through interaction>
+- ...
+\end{verbatim}
+\end{quote}
+Only populated sections are rendered. The contract states the operational goal
+and any explicitly disclosed requirements; it does not contain completion
+ratios, scorer state, criterion weights, hidden oracle state, or instructions
+derived from the evaluator. Thus, scenario scoring remains external to the
+model prompt.
+
+\subsubsection{Interactive prompt family}
+
+For interactive condition $c$ at decision turn $t$, the model input can be
+written as
+\begin{equation}
+S_c = R \oplus E \oplus D_c \oplus G \oplus F \oplus C,
+\qquad
+U_c^t = B^t \oplus H^t \oplus T^t \oplus O_c^t
+          \oplus W_c^t \oplus A^t,
+\label{eq:interactive_prompt}
+\end{equation}
+where $S_c$ is the system prompt, $U_c^t$ is the current user message,
+$\oplus$ denotes ordered concatenation, and the blocks are defined in
+Table~\ref{tab:interactive_prompt_variables}. The provider is called with the
+system prompt and one current user message; stale full observations and action
+lists are not replayed. Prior outcomes are represented only by the bounded
+feedback and trajectory blocks.
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.10}
+\caption{Blocks in the interactive prompt family.}
+\label{tab:interactive_prompt_variables}
+\begin{tabularx}{\linewidth}{
+    >{\centering\arraybackslash}p{0.05\linewidth}
+    >{\raggedright\arraybackslash}p{0.20\linewidth}
+    >{\raggedright\arraybackslash}p{0.15\linewidth}
+    >{\raggedright\arraybackslash}X
+}
+\toprule
+\textbf{Term} & \textbf{Prompt block} & \textbf{Variation} &
+\textbf{Contents} \\
+\midrule
+$R$ & Role & Fixed & Laboratory researcher in a simulated laboratory. \\
+$E$ & Environment & Fixed & Turn-based semantics; one action per turn;
+candidate list is structural rather than a guarantee of feasibility; failed
+actions produce feedback; timed equipment persists across turns. \\
+$D_c$ & State-description declaration & By condition & Declares local
+structured, local narrative, or local-plus-global structured state access. \\
+$G$ & Task contract & By scenario & Objective, known requirements, required
+outputs, disclosed safety constraints, and intentional unknowns. \\
+$F$ & Response format & Fixed & Exactly one plain JSON object selected by
+\texttt{candidate\_ref}; no prose, markup, or wrapper object. \\
+$C$ & Action contract & Fixed & Shared safety, PPE, movement, equipment,
+waiting, disposal, parameter, and documentation rules. \\
+$B^t$ & Turn feedback & By turn & Outcome of the preceding attempted action,
+including a blocking or failure reason when applicable. \\
+$H^t$ & Compact trajectory & By turn & Bounded summary of previous selected
+actions and outcomes; no full conversation replay. \\
+$T^t$ & Non-oracle turn status & By turn & Scenario name, used and maximum
+steps, remaining steps, and the statement that one selected action consumes one
+turn. \\
+$O_c^t$ & Current observation & By turn and condition & Current local state in
+structured or narrative form. \\
+$W_c^t$ & Global-state summary & By turn and condition & Present only for the
+global structured interactive condition. \\
+$A^t$ & Current action surface & By turn & Exact currently available candidates,
+grouped by action type, with targets, fixed/free parameters, hints, durations,
+and descriptions. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The following is an abridged, structurally faithful presentation of the
+interactive template. Angle-bracketed uppercase names denote runtime
+substitutions, not literal model outputs.
+
+\begin{quote}
+\begin{verbatim}
+SYSTEM
+You are a laboratory researcher working in a simulated lab environment.
+
+<environment>
+This is a turn-based simulation. On each turn, inspect the state and
+the exact current action list, then choose exactly one action. The
+candidate list is structural; safety and operational preconditions are
+resolved by the simulator. Each selected action consumes one turn.
+</environment>
+
+<state_representation>
+<CONDITION-SPECIFIC STATE DECLARATION>
+</state_representation>
+
+<task_contract>
+<SCENARIO TASK CONTRACT>
+</task_contract>
+
+<response_format>
+Return exactly one plain JSON object matching the current action schema.
+The required field is candidate_ref. Include parameters only for free
+fields exposed by the selected candidate. Output no prose or wrappers.
+</response_format>
+
+<action_contract>
+<SHARED SAFETY, GROUNDING, PARAMETER, AND TIMING RULES>
+</action_contract>
+
+USER AT TURN t
+<turn_feedback><PREVIOUS ACTION OUTCOME></turn_feedback>
+<trajectory><BOUNDED ACTION/OUTCOME HISTORY></trajectory>
+<turn_status><SCENARIO AND STEP BUDGET></turn_status>
+<observation><CURRENT LOCAL OBSERVATION></observation>
+<world_state_json><CURRENT GLOBAL SUMMARY></world_state_json>  [global only]
+<available_actions><CURRENT CANDIDATE SURFACE></available_actions>
+\end{verbatim}
+\end{quote}
+
+The condition-specific state block is the sole intended information treatment
+within the interactive family:
+\begin{itemize}
+    \item \textbf{Local structured interactive:} a fielded local observation
+          reports the current room, tick, PPE, carried samples, visible
+          equipment/materials/samples/personnel, alerts, recent events, and
+          visible timed-process state.
+    \item \textbf{Local narrative interactive:} the same local perceptual scope
+          is rendered as prose. The action surface remains structured and
+          identical to the other interactive conditions; narrative rendering
+          therefore changes observation representation, not action semantics.
+    \item \textbf{Global structured interactive:} the structured local
+          observation is augmented by a deterministic compact JSON summary of
+          all rooms and adjacency, doors, equipment, materials, samples, and
+          personnel. This global summary provides situational awareness, but
+          only candidates in the current action surface are executable.
+\end{itemize}
+
+At each turn, the action surface supplies a closed set
+$A^t=\{a_1^t,\ldots,a_n^t\}$. Each candidate contains a unique turn-local
+reference, canonical verb, target when applicable, immutable fixed parameters,
+free required and optional parameters, value/type hints, estimated duration,
+and a natural-language description. The expected response is
+\begin{equation}
+Y^t = \{\texttt{candidate\_ref}: r_j^t,
+        \ \texttt{parameters}: \theta_j^t\},
+\end{equation}
+where \texttt{parameters} is omitted when candidate $j$ exposes no free
+fields. The candidate reference is the sole branch selector. Optional echoed
+fields such as verb or target ID are accepted only when they exactly match the
+selected candidate; they are not required and do not select a branch.
+
+Representative output forms are:
+\begin{quote}
+\begin{verbatim}
+{"candidate_ref":"move_1"}
+
+{"candidate_ref":"equip_3",
+ "parameters":{"speed_rpm":1000}}
+\end{verbatim}
+\end{quote}
+Fixed parameters are already bound to the candidate and must not be repeated or
+modified. This design minimizes redundant generation while guaranteeing that
+every interactive action is grounded against the live simulator affordance
+surface.
+
+\subsubsection{Global one-shot planning prompt}
+
+The one-shot baseline receives one planning request before execution:
+\begin{equation}
+S_{\mathrm{OS}} = R_{\mathrm{OS}} \oplus C_{\mathrm{OS}}
+  \oplus V \oplus Q \oplus F_{\mathrm{OS}},
+\qquad
+U_{\mathrm{OS}} = I^0 \oplus W^0 \oplus J^0 \oplus G \oplus L,
+\label{eq:oneshot_prompt}
+\end{equation}
+where $V$ is the canonical action vocabulary, $Q$ contains plan-admissibility
+rules, $I^0$ is the initial local context and turn-zero affordances, $W^0$ is
+the complete initial world-state JSON, $J^0$ is the valid-ID and parameter-name
+inventory, and $L$ is the run step budget. The task contract $G$ is unchanged.
+
+\begin{quote}
+\begin{verbatim}
+SYSTEM
+You are a laboratory researcher planning a series of actions.
+Given the complete lab configuration, task, action vocabulary, and
+valid-ID inventory, output a COMPLETE plan as a JSON array.
+
+<safety_rules><SHARED LAB SAFETY AND TIMING RULES></safety_rules>
+<action_vocabulary><CANONICAL VERBS AND SIGNATURES></action_vocabulary>
+<plan_admissibility_rules>
+The plan must not be empty or passive filler. Use wait only to advance
+a running timed process.
+</plan_admissibility_rules>
+Use only IDs and parameter names from the supplied inventory.
+Do not emit candidate_ref values. Output only the JSON array.
+
+USER
+<initial_context><TURN-ZERO LOCAL STATE AND ACTIONS></initial_context>
+<full_lab_state_json><COMPLETE INITIAL WORLD STATE></full_lab_state_json>
+<valid_id_inventory_json><VALID IDS AND PARAMETERS></valid_id_inventory_json>
+<task_contract><SCENARIO TASK CONTRACT></task_contract>
+<run_constraints><MAXIMUM STEPS; ONE ACTION PER STEP></run_constraints>
+\end{verbatim}
+\end{quote}
+
+The output is a sequence
+\begin{equation}
+Y_{\mathrm{OS}} =
+\left[(v_1,z_1,\theta_1),\ldots,(v_k,z_k,\theta_k)\right],
+\end{equation}
+serialized as JSON objects with \texttt{verb}, optional
+\texttt{target\_id}, and optional \texttt{parameters} fields. The canonical
+vocabulary comprises movement; door operations; PPE changes; equipment start
+and stop; pipette transfer; sample retrieval and storage; material disposal;
+waiting; and observation logging. Legacy aliases are explicitly disallowed.
+
+Candidate references are deliberately absent from one-shot output. They are
+turn-local labels generated from the current state, and future labels cannot be
+known before earlier planned actions have changed that state. During replay,
+each planned verb/target/parameter tuple must bind to the live action surface at
+that step. Failure to bind is recorded as a grounding failure. Consequently,
+the most direct control-regime comparison is between global structured
+interactive control and global one-shot planning; the two local interactive
+conditions additionally test partial observability.
+
+\subsubsection{Multi-agent prompt extension}
+
+The shared-equipment scenario uses the same four information conditions with a
+team coordinator. Interactive prompts contain one local observation per
+technician and one grouped team action surface. Each candidate reference is
+namespaced by technician and uniquely selects both the actor and action; the
+coordinator still returns exactly one action per turn:
+\begin{quote}
+\begin{verbatim}
+{"candidate_ref":"t1_equip_2"}
+\end{verbatim}
+\end{quote}
+The global interactive variant additionally receives the whole-laboratory
+summary. For one-shot team planning, every plan element adds the required
+\texttt{agent\_id} field:
+\begin{quote}
+\begin{verbatim}
+[{"agent_id":"tech_1","verb":"move_to","target_id":"wet_lab"},
+ {"agent_id":"tech_2","verb":"don_ppe",
+  "parameters":{"ppe_type":"lab_coat"}}]
+\end{verbatim}
+\end{quote}
+The team contract additionally requires safe scheduling, avoidance of equipment
+contention, and exactly one centrifuge run per technician. All team actions are
+executed as ordered transitions on one shared world state and event timeline.
+
+\subsubsection{Retries, parsing, and prompt audit}
+
+Malformed or protocol-invalid model output may be retried at most twice after
+the initial call. A retry includes the parsing or grounding error and restates
+the relevant JSON contract; it does not advance simulator time, submit an
+action, or consume an environment step. The same maximum of two corrective
+retries applies to interactive decisions and one-shot plan generation. Output
+normalization and JSON repair are parser-side robustness mechanisms and do not
+alter the state information or candidate set shown to the model. Retry counts,
+normalization events, provider errors, and the raw model responses are retained
+in the run artifacts.
+
+To guard experimental parity, the benchmark audit verifies that the three
+interactive conditions share the same task contract, environment instructions,
+response format, action contract, available-action text, turn status, feedback,
+trajectory, and dynamic action schema for a matched state. It also checks that
+local prompts do not contain global-state blocks and that prompt-visible status
+does not expose scorer-derived progress. Prompt snapshots and prompt-family
+hashes are stored with experiment artifacts, allowing the exact evaluated
+prompt surface to be inspected and prompt drift to be detected.

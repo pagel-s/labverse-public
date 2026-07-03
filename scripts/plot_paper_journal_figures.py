@@ -47,11 +47,12 @@ GRID = "#ded9cf"
 PAPER = "#fbfaf7"
 
 MODEL_COLORS = {
-    "ollama/gemma4:31b": "#1f2d35",
-    "ollama/gemma4:26b": "#496b75",
-    "ollama/qwen3.5:27b": "#849da2",
-    "ollama/mistral-small3.2:24b": "#c4b9a4",
+    "ollama/gemma4:31b": "#e0ebeb",
+    "ollama/gemma4:26b": "#c0d7d7",
+    "ollama/qwen3.5:27b": "#a3c1c3",
+    "ollama/mistral-small3.2:24b": "#8ea4ae",
 }
+
 
 FAILURE_COLORS = {
     "Behavioral/task failure": "#686d72",
@@ -64,6 +65,18 @@ HEATMAP_CMAP = mpl.colors.LinearSegmentedColormap.from_list(
     "labverse_heatmap",
     ["#f6f3ed", "#d9dfdd", "#98adb4", "#566a72"],
 )
+
+COMPLETION_CMAP = mpl.colors.LinearSegmentedColormap.from_list(
+    "labverse_completion",
+    ["#f5f7f7", "#e0ebeb", "#c0d7d7", "#a3c1c3", "#708b98"],
+)
+
+SENSITIVITY_CMAP = mpl.colors.LinearSegmentedColormap.from_list(
+    "labverse_sensitivity",
+    ["#f7f3f2", "#ecd9d6", "#d9aaa5", "#b97673", "#925354"],
+)
+
+SUCCESS_CMAP = mpl.colors.ListedColormap(["#ffffff", "#74c476"])
 
 CONDITION_COMPACT = {
     "local_structured_interactive_grounded": "Local structured",
@@ -237,97 +250,229 @@ def _scenario_success_grid(
     return values, successes, totals
 
 
-def _draw_scenario_bar_panel(
-    ax: plt.Axes,
+def _scenario_cell_metrics(
     rows: list[dict[str, Any]],
     *,
+    model: str,
     condition: str,
-    models: list[str],
-    scenarios: list[str],
-    labels: dict[str, str],
-    show_xlabel: bool,
-) -> list[dict[str, Any]]:
-    x = np.arange(len(scenarios) + 1)
-    width = min(0.17, 0.82 / max(len(models), 1))
-    offsets = (np.arange(len(models)) - (len(models) - 1) / 2) * width
-    source_rows: list[dict[str, Any]] = []
+    scenario: str,
+) -> tuple[float, float, int, int]:
+    items = [
+        row
+        for row in rows
+        if row["model"] == model
+        and row["condition"] == condition
+        and row["scenario"] == scenario
+    ]
+    total = len(items)
+    successes = sum(1 for item in items if item.get("success"))
+    success_rate = successes / total if total else float("nan")
+    completion = _mean([float(item.get("completion_ratio") or 0.0) for item in items])
+    return success_rate, completion, successes, total
 
-    for index, model in enumerate(models):
-        scenario_values, successes, totals = _scenario_success_grid(
+
+def _scenario_sensitivity(
+    bundle_rows: dict[str, list[dict[str, Any]]],
+    *,
+    model: str,
+    condition: str,
+    scenario: str,
+) -> float:
+    values: list[float] = []
+    for rows in bundle_rows.values():
+        _, completion, _, total = _scenario_cell_metrics(
             rows,
             model=model,
             condition=condition,
-            scenarios=scenarios,
+            scenario=scenario,
         )
-        mean_value = float(np.nanmean(scenario_values)) if scenario_values else np.nan
-        values = [*scenario_values, mean_value]
-        ax.bar(
-            x + offsets[index],
-            values,
-            width=width * 0.92,
-            color=MODEL_COLORS.get(model, MID),
-            edgecolor=PAPER,
-            linewidth=0.35,
-        )
-        for scenario, value, success_count, total in zip(
-            scenarios,
-            scenario_values,
-            successes,
-            totals,
-            strict=True,
-        ):
+        if total:
+            values.append(completion)
+    return max(values) - min(values) if values else float("nan")
+
+
+def _scenario_metric_matrices(
+    rows: list[dict[str, Any]],
+    *,
+    sensitivity_rows: dict[str, list[dict[str, Any]]],
+    model: str,
+    conditions: list[str],
+    scenarios: list[str],
+    labels: dict[str, str],
+) -> tuple[dict[str, np.ndarray], list[dict[str, Any]]]:
+    matrices = {
+        "success": np.full((len(conditions), len(scenarios)), np.nan),
+        "completion": np.full((len(conditions), len(scenarios)), np.nan),
+        "sensitivity": np.full((len(conditions), len(scenarios)), np.nan),
+    }
+    source_rows: list[dict[str, Any]] = []
+    for row_index, condition in enumerate(conditions):
+        for column_index, scenario in enumerate(scenarios):
+            success_rate, completion_ratio, successes, total = _scenario_cell_metrics(
+                rows,
+                model=model,
+                condition=condition,
+                scenario=scenario,
+            )
+            sensitivity = _scenario_sensitivity(
+                sensitivity_rows,
+                model=model,
+                condition=condition,
+                scenario=scenario,
+            )
+            matrices["success"][row_index, column_index] = success_rate * 100.0
+            matrices["completion"][row_index, column_index] = completion_ratio * 100.0
+            matrices["sensitivity"][row_index, column_index] = sensitivity * 100.0
             source_rows.append(
                 {
-                    "planner": condition,
                     "model": model,
+                    "planner": condition,
                     "scenario": scenario,
                     "scenario_label": labels[scenario],
-                    "successes": success_count,
+                    "successes": successes,
                     "n": total,
-                    "success_rate": round(value / 100.0 if total else 0.0, 6),
+                    "success_rate": round(success_rate if total else 0.0, 6),
+                    "completion_ratio": round(completion_ratio if total else 0.0, 6),
+                    "perturbation_completion_range": round(
+                        sensitivity if not np.isnan(sensitivity) else 0.0,
+                        6,
+                    ),
                 }
             )
-        source_rows.append(
-            {
-                "planner": condition,
-                "model": model,
-                "scenario": "__mean__",
-                "scenario_label": "Mean",
-                "successes": "",
-                "n": "",
-                "success_rate": round(mean_value / 100.0 if not np.isnan(mean_value) else 0.0, 6),
-            }
-        )
+    return matrices, source_rows
 
-    condition_items = [
-        row for row in rows if row["condition"] == condition and row["scenario"] in scenarios
-    ]
-    condition_mean = _mean([1.0 if item.get("success") else 0.0 for item in condition_items])
 
+def _draw_scenario_metric_panel(
+    ax: plt.Axes,
+    matrix: np.ndarray,
+    *,
+    model: str,
+    conditions: list[str],
+    scenarios: list[str],
+    labels: dict[str, str],
+    show_ylabels: bool,
+    cmap: mpl.colors.Colormap,
+    norm: mpl.colors.Normalize,
+    summary_label: str,
+) -> None:
+    ax.imshow(
+        matrix,
+        cmap=cmap,
+        norm=norm,
+        aspect="equal",
+        interpolation="none",
+    )
+    ax.set_xticks(np.arange(len(scenarios)))
+    ax.set_xticklabels([labels[scenario] for scenario in scenarios])
+    ax.set_yticks(np.arange(len(conditions)))
+    ax.set_yticklabels(
+        [_condition_compact(condition) for condition in conditions] if show_ylabels else []
+    )
+    ax.set_xticks(np.arange(-0.5, len(scenarios), 1), minor=True)
+    ax.set_yticks(np.arange(-0.5, len(conditions), 1), minor=True)
+    ax.grid(which="minor", color=PAPER, linewidth=1.2)
+    ax.tick_params(which="both", length=0, pad=1.5)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    mean_value = float(np.nanmean(matrix)) if matrix.size else float("nan")
     ax.set_title(
-        f"{_condition_compact(condition)}  |  mean {condition_mean * 100:.0f}%",
+        f"{_model_short(model)}  |  {summary_label} {mean_value:.0f}%",
         loc="left",
         fontsize=6.7,
         fontweight="bold",
         color=INK,
+        pad=3,
     )
-    ax.axvline(len(scenarios) - 0.45, color=GRID, linewidth=0.65)
-    ax.set_ylim(0, 103)
-    ax.set_yticks([0, 50, 100])
-    ax.set_ylabel("Success (%)")
-    ax.set_xticks(x)
-    ax.set_xticklabels([*[labels[scenario] for scenario in scenarios], "Mean"])
-    if not show_xlabel:
-        ax.tick_params(axis="x", labelbottom=False)
+
+
+def _plot_scenario_metric_figure(
+    *,
+    matrices: dict[str, np.ndarray],
+    models: list[str],
+    conditions: list[str],
+    scenarios: list[str],
+    labels: dict[str, str],
+    title: str,
+    subtitle: str,
+    summary_label: str,
+    output_stem: str,
+    cmap: mpl.colors.Colormap,
+    norm: mpl.colors.Normalize,
+    colorbar_label: str | None,
+    output_dir: Path,
+    formats: tuple[str, ...],
+    dpi: int,
+) -> None:
+    ncols = 2
+    nrows = int(np.ceil(len(models) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(6.8, 3.05), squeeze=False)
+    fig.subplots_adjust(
+        left=0.17,
+        right=0.985,
+        bottom=0.15,
+        top=0.79,
+        hspace=0.34,
+        wspace=0.10,
+    )
+
+    for index, (ax, model) in enumerate(zip(axes.flat, models, strict=False)):
+        _draw_scenario_metric_panel(
+            ax,
+            matrices[model],
+            model=model,
+            conditions=conditions,
+            scenarios=scenarios,
+            labels=labels,
+            show_ylabels=index % ncols == 0,
+            cmap=cmap,
+            norm=norm,
+            summary_label=summary_label,
+        )
+    for ax in axes.flat[len(models) :]:
+        ax.set_visible(False)
+
+    fig.text(0.17, 0.975, title, fontsize=7.4, fontweight="bold", color=INK, va="top")
+    fig.text(
+        0.17,
+        0.910,
+        subtitle,
+        fontsize=5.9,
+        color=MUTED,
+        va="top",
+    )
+
+    if colorbar_label is None:
+        fig.legend(
+            handles=[
+                Patch(facecolor=SUCCESS_CMAP(0), edgecolor="none", label="Failure"),
+                Patch(facecolor=SUCCESS_CMAP(1), edgecolor="none", label="Success"),
+            ],
+            loc="upper right",
+            bbox_to_anchor=(0.985, 0.935),
+            frameon=False,
+            ncol=2,
+            columnspacing=1.0,
+            handlelength=1.0,
+        )
     else:
-        ax.set_xlabel("Scenario")
-    _style_axis(ax, ygrid=True)
-    return source_rows
+        colorbar_axis = fig.add_axes((0.37, 0.035, 0.42, 0.018))
+        colorbar = fig.colorbar(
+            mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
+            cax=colorbar_axis,
+            orientation="horizontal",
+            ticks=[0, 50, 100],
+        )
+        colorbar.outline.set_visible(False)
+        colorbar.ax.tick_params(length=0, labelsize=5.4)
+        colorbar.set_label(colorbar_label, fontsize=5.6, labelpad=2)
+
+    _save(fig, output_dir, output_stem, formats, dpi)
 
 
 def plot_journal_main(
     *,
     rows: list[dict[str, Any]],
+    sensitivity_rows: dict[str, list[dict[str, Any]]],
     bundle_name: str,
     models: list[str],
     conditions: list[str],
@@ -338,30 +483,23 @@ def plot_journal_main(
 ) -> None:
     labels = _scenario_labels(scenarios)
     source_rows: list[dict[str, Any]] = []
-
-    fig, axes = plt.subplots(
-        len(conditions),
-        1,
-        figsize=(7.2, 5.9),
-        sharex=True,
-        sharey=True,
-    )
-    if len(conditions) == 1:
-        axes = np.array([axes])
-    fig.subplots_adjust(left=0.09, right=0.985, bottom=0.10, top=0.84, hspace=0.28)
-
-    for index, (ax, condition) in enumerate(zip(axes, conditions, strict=True)):
-        source_rows.extend(
-            _draw_scenario_bar_panel(
-                ax,
-                rows,
-                condition=condition,
-                models=models,
-                scenarios=scenarios,
-                labels=labels,
-                show_xlabel=index == len(conditions) - 1,
-            )
+    metric_matrices: dict[str, dict[str, np.ndarray]] = {
+        "success": {},
+        "completion": {},
+        "sensitivity": {},
+    }
+    for model in models:
+        model_matrices, model_records = _scenario_metric_matrices(
+            rows,
+            sensitivity_rows=sensitivity_rows,
+            model=model,
+            conditions=conditions,
+            scenarios=scenarios,
+            labels=labels,
         )
+        source_rows.extend(model_records)
+        for metric, matrix in model_matrices.items():
+            metric_matrices[metric][model] = matrix
 
     _write_csv(
         output_dir / "journal_main_benchmark.csv",
@@ -374,33 +512,48 @@ def plot_journal_main(
         ],
     )
 
-    fig.legend(
-        handles=_model_handles(models),
-        loc="upper left",
-        bbox_to_anchor=(0.09, 0.925),
-        frameon=False,
-        ncol=4,
-        columnspacing=1.1,
-        handlelength=1.3,
+    common = {
+        "models": models,
+        "conditions": conditions,
+        "scenarios": scenarios,
+        "labels": labels,
+        "output_dir": output_dir,
+        "formats": formats,
+        "dpi": dpi,
+    }
+    _plot_scenario_metric_figure(
+        matrices=metric_matrices["success"],
+        title="Scenario-level success",
+        subtitle=f"Canonical bundle: {bundle_name}",
+        summary_label="mean success",
+        output_stem="journal_main_benchmark",
+        cmap=SUCCESS_CMAP,
+        norm=mpl.colors.BoundaryNorm([-0.5, 50, 100.5], SUCCESS_CMAP.N),
+        colorbar_label=None,
+        **common,
     )
-    fig.text(
-        0.09,
-        0.975,
-        "Scenario-level success by planner and model",
-        fontsize=7.4,
-        fontweight="bold",
-        color=INK,
-        va="top",
+    _plot_scenario_metric_figure(
+        matrices=metric_matrices["completion"],
+        title="Scenario-level completion",
+        subtitle=f"Canonical bundle: {bundle_name}",
+        summary_label="mean completion",
+        output_stem="journal_main_completion",
+        cmap=COMPLETION_CMAP,
+        norm=mpl.colors.Normalize(vmin=0, vmax=100),
+        colorbar_label="Completion ratio (%)",
+        **common,
     )
-    fig.text(
-        0.09,
-        0.935,
-        f"Canonical bundle: {bundle_name}; rightmost group shows each model's scenario mean.",
-        fontsize=5.9,
-        color=MUTED,
-        va="top",
+    _plot_scenario_metric_figure(
+        matrices=metric_matrices["sensitivity"],
+        title="Sensitivity to initial-state perturbations",
+        subtitle="Range across reference, perturbation 1, and perturbation 2",
+        summary_label="mean range",
+        output_stem="journal_main_perturbation_sensitivity",
+        cmap=SENSITIVITY_CMAP,
+        norm=mpl.colors.Normalize(vmin=0, vmax=100),
+        colorbar_label="Completion-ratio range (percentage points)",
+        **common,
     )
-    _save(fig, output_dir, "journal_main_benchmark", formats, dpi)
 
 
 def plot_journal_failure_taxonomy(
@@ -841,9 +994,15 @@ def build_journal_figures(
     rows = _load_results(canonical_bundle)
     scenarios = _scenario_order(canonical_bundle)
     models, conditions = _selected_models_conditions(rows)
+    bundle_rows = {
+        "reference": _load_results(reference_bundle),
+        "perturbation_1": _load_results(perturbation_1_bundle),
+        "perturbation_2": _load_results(perturbation_2_bundle),
+    }
 
     plot_journal_main(
         rows=rows,
+        sensitivity_rows=bundle_rows,
         bundle_name=canonical_bundle.name,
         models=models,
         conditions=conditions,
@@ -861,11 +1020,6 @@ def build_journal_figures(
         dpi=dpi,
     )
 
-    bundle_rows = {
-        "reference": _load_results(reference_bundle),
-        "perturbation_1": _load_results(perturbation_1_bundle),
-        "perturbation_2": _load_results(perturbation_2_bundle),
-    }
     bundle_names = {
         "reference": reference_bundle.name,
         "perturbation_1": perturbation_1_bundle.name,

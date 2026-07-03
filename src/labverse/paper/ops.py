@@ -24,7 +24,7 @@ class BundleStatusReport(BaseModel):
     latest_run: str | None = None
     validation_ok: bool = False
     validation_issues: list[str] = Field(default_factory=list)
-    ready_for_scale: bool = False
+    diagnostics_clear: bool = False
     blocking_reasons: list[str] = Field(default_factory=list)
 
 
@@ -233,7 +233,7 @@ def bundle_status(bundle_dir: str | Path) -> BundleStatusReport:
         latest_run=latest_run[1] if latest_run is not None else None,
         validation_ok=validation.valid,
         validation_issues=list(validation.issues),
-        ready_for_scale=health.ready_for_scale,
+        diagnostics_clear=health.diagnostics_clear,
         blocking_reasons=list(health.blocking_reasons),
     )
 

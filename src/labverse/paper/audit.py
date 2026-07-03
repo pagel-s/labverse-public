@@ -1,4 +1,4 @@
-"""Launch-blocking scientific audit for the frozen paper benchmark."""
+"""Scientific diagnostics for the frozen paper benchmark."""
 
 from __future__ import annotations
 
@@ -142,7 +142,7 @@ class ScientificAuditReport(BaseModel):
     repo_clean: bool
     bundle_dir: str | None = None
     valid: bool = False
-    launch_ready: bool = False
+    diagnostics_clear: bool = False
     blocking_reasons: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     repo_issues: list[str] = Field(default_factory=list)
@@ -158,7 +158,7 @@ def build_scientific_audit_report(
     manifest_path: str | Path = default_manifest_path(),
     allow_dirty: bool = False,
 ) -> ScientificAuditReport:
-    """Build the launch-blocking scientific audit report."""
+    """Build the scientific diagnostic audit report."""
 
     manifest = load_paper_manifest(manifest_path)
     observability = load_scenario_observability_matrix(manifest=manifest)
@@ -169,7 +169,7 @@ def build_scientific_audit_report(
     if not repo_clean and not allow_dirty:
         repo_issues.append(
             "Git worktree is dirty. Commit or stash changes before treating this audit "
-            "as launch-blocking."
+            "as citation-grade."
         )
     elif not repo_clean:
         warnings.append("Git worktree is dirty. This audit is debug-only and not citation-grade.")
@@ -191,16 +191,16 @@ def build_scientific_audit_report(
     bundle_issues: list[str] = []
     bundle_failure_explanations: list[BundleFailureExplanation] = []
     scenario_failure_dossiers: list[ScenarioFailureDossier] = []
-    bundle_launch_ready = True
+    bundle_diagnostics_clear = True
     if bundle_dir is not None:
         bundle_path = Path(bundle_dir)
         validation = validate_paper_bundle(bundle_path)
         if not validation.valid:
             bundle_issues.extend(validation.issues)
         health = build_pipeline_health_report(bundle_path)
-        if not health.ready_for_scale:
+        if not health.diagnostics_clear:
             bundle_issues.extend(health.blocking_reasons)
-        bundle_launch_ready = validation.valid and health.ready_for_scale
+        bundle_diagnostics_clear = validation.valid and health.diagnostics_clear
         bundle_failure_explanations = _classify_bundle_failures(
             bundle_path=bundle_path,
             scenario_reports=scenario_reports,
@@ -215,7 +215,7 @@ def build_scientific_audit_report(
     if bundle_dir is not None:
         blocking_reasons.extend(bundle_issues)
     valid = not blocking_reasons
-    launch_ready = valid and repo_clean and bundle_launch_ready
+    diagnostics_clear = valid and repo_clean and bundle_diagnostics_clear
 
     return ScientificAuditReport(
         generated_at=datetime.now(UTC).isoformat(),
@@ -225,7 +225,7 @@ def build_scientific_audit_report(
         repo_clean=repo_clean,
         bundle_dir=str(bundle_dir) if bundle_dir is not None else None,
         valid=valid,
-        launch_ready=launch_ready,
+        diagnostics_clear=diagnostics_clear,
         blocking_reasons=blocking_reasons,
         warnings=warnings,
         repo_issues=repo_issues,
@@ -271,7 +271,7 @@ def _render_scientific_audit_markdown(report: ScientificAuditReport) -> str:
         f"- Manifest: `{report.manifest_id}` v`{report.manifest_version}`",
         f"- Repo clean: `{str(report.repo_clean).lower()}`",
         f"- Valid: `{str(report.valid).lower()}`",
-        f"- Launch ready: `{str(report.launch_ready).lower()}`",
+        f"- Diagnostics clear: `{str(report.diagnostics_clear).lower()}`",
     ]
     if report.bundle_dir:
         lines.append(f"- Bundle: `{report.bundle_dir}`")

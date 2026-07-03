@@ -867,37 +867,7 @@ export class LabScene extends Phaser.Scene {
       }
     }
 
-    const spine = this.generatedLayout?.corridorSegments.find((segment) => segment.kind === "spine");
-    if (!spine) {
-      return [destination];
-    }
-
-    const fromEntry = this.roomTravelEntry(fromRoomId, toRoomId);
-    const toEntry = this.roomTravelEntry(toRoomId, fromRoomId);
-    if (!fromEntry || !toEntry) {
-      return [destination];
-    }
-
-    const corridorY = (spine.ty + spine.th / 2) * TILE;
-    const path = [
-      this.entryInteriorAnchor(fromEntry),
-      this.entryThresholdAnchor(fromEntry),
-      this.entryCorridorAnchor(fromEntry),
-      { x: this.entryCorridorAnchor(fromEntry).x, y: corridorY },
-      { x: this.entryCorridorAnchor(toEntry).x, y: corridorY },
-      this.entryCorridorAnchor(toEntry),
-      this.entryThresholdAnchor(toEntry),
-      this.entryInteriorAnchor(toEntry),
-      destination,
-    ];
-
-    return path.filter((point, index) => {
-      if (index === 0) {
-        return true;
-      }
-      const previous = path[index - 1];
-      return Phaser.Math.Distance.Between(previous.x, previous.y, point.x, point.y) > 4;
-    });
+    return [destination];
   }
 
   private ensureGeneratedTilemap(world: WorldState): void {
@@ -1023,6 +993,7 @@ export class LabScene extends Phaser.Scene {
       }
       for (let x = entry.tx; x < entry.tx + entry.tw; x += 1) {
         putTile(floorLayer, floorTile, x, transitionY);
+        putTile(objectLayer, TILE_IDS.threshold, x, entry.ty);
       }
     }
 
@@ -1524,11 +1495,19 @@ export class LabScene extends Phaser.Scene {
       const sy = segment.ty * TILE;
       const sw = segment.tw * TILE;
       const sh = segment.th * TILE;
-      const isSpine = segment.kind === "spine";
-      g.fillStyle(isSpine ? 0x091014 : 0x0b1318, isSpine ? 0.2 : 0.13);
-      g.fillRoundedRect(sx, sy, sw, sh, isSpine ? 8 : 5);
-      g.lineStyle(1, isSpine ? 0x5c6e79 : 0x41535e, isSpine ? 0.18 : 0.12);
-      g.strokeRoundedRect(sx, sy, sw, sh, isSpine ? 8 : 5);
+      const door = world.lab.doors.find((candidate) => candidate.id === segment.door_id);
+      const routeTone = door?.locked ? 0xb66b46 : door?.is_open === false ? 0xc49a55 : 0x789a93;
+      g.fillStyle(0x172229, 0.62);
+      g.fillRect(sx + 3, sy, sw - 6, sh);
+      g.lineStyle(1, routeTone, 0.52);
+      g.lineBetween(sx + 3, sy, sx + 3, sy + sh);
+      g.lineBetween(sx + sw - 3, sy, sx + sw - 3, sy + sh);
+      g.lineStyle(1, 0xc7d1d2, 0.16);
+      for (let y = sy + 12; y < sy + sh; y += 18) {
+        g.lineBetween(sx + sw / 2 - 3, y, sx + sw / 2 + 3, y);
+      }
+      g.fillStyle(routeTone, 0.9);
+      g.fillCircle(sx + sw / 2, sy + sh / 2, 3);
     }
 
     for (const [roomId, rect] of entries) {
@@ -1570,6 +1549,11 @@ export class LabScene extends Phaser.Scene {
       g.lineBetween(px + pw - 2, py + 10, px + pw - 2, py + ph - 10);
       drawHorizontalWall("north", py + 2);
       drawHorizontalWall("south", py + ph - 2);
+
+      if (roomId === this.generatedLayout?.hubRoomId) {
+        g.lineStyle(1, hexToNumber(profile.accent), 0.34);
+        g.strokeRect(px - 5, py - 5, pw + 10, ph + 10);
+      }
 
       drawZoneFrames(g, room, innerX, innerY, innerW, innerH);
     }

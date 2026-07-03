@@ -1,6 +1,5 @@
 import type { Door, Person, Room, WorldState } from "../../api/client";
 import {
-  roomLayoutBand,
   roomLayoutFootprint,
   roomLayoutPriority,
 } from "../../lib/roomVisuals";
@@ -18,7 +17,8 @@ export type FrontageSide = "north" | "south";
 export type RoomEntryKind = "standard" | "controlled" | "shared";
 
 export interface GeneratedCorridorSegment extends TileRect {
-  kind: "spine" | "branch";
+  kind: "connection";
+  door_id: string;
   room_id?: string;
   entry_id?: string;
 }
@@ -75,10 +75,6 @@ function rowWidth(roomIds: string[], sizes: Map<string, { tw: number; th: number
   return roomIds.reduce((total, roomId) => total + (sizes.get(roomId)?.tw ?? 0), 0) + gap * (roomIds.length - 1);
 }
 
-function roomCenterX(rect: TileRect): number {
-  return (rect.tx + rect.tw / 2) * TILE;
-}
-
 function roomEntryCount(room: Room, degree: number, isHub: boolean): { count: number; width: number; kind: RoomEntryKind } {
   if (degree <= 0) {
     return { count: 0, width: 0, kind: "standard" };
@@ -109,21 +105,21 @@ function buildDegreeMap(doors: Door[]): Map<string, number> {
   return degrees;
 }
 
-function detectHubRoom(roomIds: string[], doors: Door[]): string | null {
-  const degrees = buildDegreeMap(doors);
-  let hubRoomId: string | null = null;
-  let maxDegree = 0;
-  for (const roomId of roomIds) {
-    const degree = degrees.get(roomId) ?? 0;
-    if (degree > maxDegree) {
-      maxDegree = degree;
-      hubRoomId = roomId;
-    }
-  }
-  if (maxDegree < 2 || maxDegree < roomIds.length - 2) {
+function detectHubRoom(rooms: Room[], doors: Door[]): string | null {
+  if (doors.length === 0) {
     return null;
   }
-  return hubRoomId;
+  const degrees = buildDegreeMap(doors);
+  const candidates = rooms.filter(
+    (room) =>
+      (degrees.get(room.id) ?? 0) === doors.length &&
+      doors.every((door) => door.connects.includes(room.id)),
+  );
+  return candidates.sort((left, right) => {
+    const leftPreference = left.room_type === "wet_lab" ? 0 : left.room_type === "office" ? 2 : 1;
+    const rightPreference = right.room_type === "wet_lab" ? 0 : right.room_type === "office" ? 2 : 1;
+    return leftPreference - rightPreference || left.name.localeCompare(right.name);
+  })[0]?.id ?? null;
 }
 
 function roomSize(
@@ -173,64 +169,40 @@ function roomSize(
   return { tw, th };
 }
 
-function buildRoomEntries(
+function buildRoomEntry(
   room: Room,
   rect: TileRect,
-  degree: number,
+  side: FrontageSide,
+  centerX: number,
+  doorId: string,
+  index: number,
   isHub: boolean,
-): GeneratedRoomEntry[] {
-  const { count, width, kind } = roomEntryCount(room, degree, isHub);
-  if (count <= 0) {
-    return [];
-  }
-
-  const side: FrontageSide = roomLayoutBand(room) === "primary" ? "south" : "north";
+): GeneratedRoomEntry {
+  const { width, kind } = roomEntryCount(room, 1, isHub);
   const usableStart = rect.tx + 2;
   const usableEnd = rect.tx + rect.tw - 3;
-  const centers =
-    count === 1
-      ? [rect.tx + rect.tw / 2]
-      : [rect.tx + rect.tw * 0.36, rect.tx + rect.tw * 0.64];
-
-  const entries: GeneratedRoomEntry[] = [];
-  let previousEnd = usableStart - 2;
-  centers.forEach((center, index) => {
-    let start = clamp(Math.round(center - width / 2), usableStart, usableEnd - width + 1);
-    if (start <= previousEnd + 1) {
-      start = previousEnd + 2;
-    }
-    start = clamp(start, usableStart, usableEnd - width + 1);
-    previousEnd = start + width - 1;
-    const ty = side === "south" ? rect.ty + rect.th - 1 : rect.ty;
-    entries.push({
-      id: `${room.id}:entry:${index + 1}`,
-      room_id: room.id,
-      side,
-      kind,
-      tx: start,
-      ty,
-      tw: width,
-      th: 1,
-      anchor: {
-        x: (start + width / 2) * TILE,
-        y: (ty + 0.5) * TILE,
-      },
-      door_ids: [],
-    });
-  });
-  return entries;
-}
-
-function chooseNearestEntry(
-  entries: GeneratedRoomEntry[],
-  targetX: number,
-): GeneratedRoomEntry | null {
-  if (entries.length === 0) {
-    return null;
-  }
-  return [...entries].sort(
-    (left, right) => Math.abs(left.anchor.x - targetX) - Math.abs(right.anchor.x - targetX),
-  )[0] ?? null;
+  const entryWidth = Math.min(2, width, Math.max(1, usableEnd - usableStart + 1));
+  const start = clamp(
+    Math.round(centerX - entryWidth / 2),
+    usableStart,
+    usableEnd - entryWidth + 1,
+  );
+  const ty = side === "south" ? rect.ty + rect.th - 1 : rect.ty;
+  return {
+    id: `${room.id}:entry:${index + 1}`,
+    room_id: room.id,
+    side,
+    kind,
+    tx: start,
+    ty,
+    tw: entryWidth,
+    th: 1,
+    anchor: {
+      x: (start + entryWidth / 2) * TILE,
+      y: (ty + 0.5) * TILE,
+    },
+    door_ids: [doorId],
+  };
 }
 
 function buildGeneratedLayout(world: WorldState): GeneratedLabLayout {
@@ -239,28 +211,32 @@ function buildGeneratedLayout(world: WorldState): GeneratedLabLayout {
       roomLayoutPriority(left) - roomLayoutPriority(right) || left.name.localeCompare(right.name),
   );
   const margin = 2;
-  const gap = 1;
-  const corridorHeight = 2;
+  const gap = 2;
+  const connectionDepth = 3;
   const degrees = buildDegreeMap(world.lab.doors);
-  const hubRoomId = detectHubRoom(sorted.map((room) => room.id), world.lab.doors);
-
-  const primaryRooms = sorted.filter((room) => roomLayoutBand(room) === "primary");
-  const supportRooms = sorted.filter((room) => roomLayoutBand(room) === "support");
-  const topRooms = primaryRooms.length > 0 ? [...primaryRooms] : sorted.slice(0, Math.ceil(sorted.length / 2));
-  let bottomRooms = primaryRooms.length > 0 ? supportRooms : sorted.filter((room) => !topRooms.includes(room));
-  if (bottomRooms.length === 0 && topRooms.length > 1) {
-    bottomRooms = topRooms.splice(Math.ceil(topRooms.length / 2));
+  const hubRoomId = detectHubRoom(sorted, world.lab.doors);
+  const hubRoom = sorted.find((room) => room.id === hubRoomId) ?? sorted[0];
+  if (!hubRoom) {
+    throw new Error("Cannot generate a lab layout without rooms.");
   }
+  const leafRooms = sorted.filter((room) => room.id !== hubRoom.id);
+  const splitIndex = Math.ceil(leafRooms.length / 2);
+  const topRooms = leafRooms.slice(0, splitIndex);
+  const bottomRooms = leafRooms.slice(splitIndex);
 
   const sizes = new Map<string, { tw: number; th: number }>();
   for (const room of sorted) {
     sizes.set(
       room.id,
-      roomSize(room, degrees.get(room.id) ?? 0, room.id === hubRoomId),
+      roomSize(room, degrees.get(room.id) ?? 0, room.id === hubRoom.id),
     );
   }
 
-  const totalRowWidth = Math.max(rowWidth(topRooms.map((room) => room.id), sizes, gap), rowWidth(bottomRooms.map((room) => room.id), sizes, gap));
+  const topWidth = rowWidth(topRooms.map((room) => room.id), sizes, gap);
+  const bottomWidth = rowWidth(bottomRooms.map((room) => room.id), sizes, gap);
+  const naturalHubSize = sizes.get(hubRoom.id)!;
+  const totalRowWidth = Math.max(topWidth, bottomWidth, naturalHubSize.tw);
+  sizes.set(hubRoom.id, { ...naturalHubSize, tw: totalRowWidth });
   const roomRects: Record<string, TileRect> = {};
   const topY = margin;
 
@@ -275,126 +251,97 @@ function buildGeneratedLayout(world: WorldState): GeneratedLabLayout {
     }
   };
 
-  placeRow(topRooms, topY);
+  if (topRooms.length > 0) {
+    placeRow(topRooms, topY);
+  }
   const maxTopH = Math.max(...topRooms.map((room) => sizes.get(room.id)?.th ?? 0), 0);
-  const corridorTy = topY + maxTopH + 1;
-  const bottomY = corridorTy + corridorHeight + 1;
-  placeRow(bottomRooms, bottomY);
+  const hubY = topY + maxTopH + (topRooms.length > 0 ? connectionDepth : 0);
+  placeRow([hubRoom], hubY);
+  const hubRect = roomRects[hubRoom.id]!;
+  const bottomY = hubY + hubRect.th + (bottomRooms.length > 0 ? connectionDepth : 0);
+  if (bottomRooms.length > 0) {
+    placeRow(bottomRooms, bottomY);
+  }
 
   const roomEntries: Record<string, GeneratedRoomEntry[]> = {};
   for (const room of sorted) {
-    roomEntries[room.id] = buildRoomEntries(
-      room,
-      roomRects[room.id]!,
-      degrees.get(room.id) ?? 0,
-      room.id === hubRoomId,
-    );
+    roomEntries[room.id] = [];
   }
 
   const minTx = Math.min(...Object.values(roomRects).map((rect) => rect.tx));
   const maxTx = Math.max(...Object.values(roomRects).map((rect) => rect.tx + rect.tw));
-  const corridorSegments: GeneratedCorridorSegment[] = [
-    {
-      kind: "spine",
-      tx: minTx,
-      ty: corridorTy,
-      tw: maxTx - minTx,
-      th: corridorHeight,
-    },
-  ];
-
-  for (const entries of Object.values(roomEntries)) {
-    for (const entry of entries) {
-      if (entry.side === "south") {
-        const branchTy = entry.ty + 1;
-        const branchHeight = corridorTy - branchTy;
-        if (branchHeight > 0) {
-          corridorSegments.push({
-            kind: "branch",
-            room_id: entry.room_id,
-            entry_id: entry.id,
-            tx: entry.tx,
-            ty: branchTy,
-            tw: entry.tw,
-            th: branchHeight,
-          });
-        }
-      } else {
-        const branchTy = corridorTy + corridorHeight;
-        const branchHeight = entry.ty - branchTy;
-        if (branchHeight > 0) {
-          corridorSegments.push({
-            kind: "branch",
-            room_id: entry.room_id,
-            entry_id: entry.id,
-            tx: entry.tx,
-            ty: branchTy,
-            tw: entry.tw,
-            th: branchHeight,
-          });
-        }
-      }
-    }
-  }
+  const corridorSegments: GeneratedCorridorSegment[] = [];
 
   const doorRoutes: Record<string, GeneratedDoorRoute> = {};
-  const spineY = (corridorTy + corridorHeight / 2) * TILE;
-
-  for (const door of world.lab.doors) {
-    const [leftRoomId, rightRoomId] = door.connects;
-    const leftEntries = roomEntries[leftRoomId] ?? [];
-    const rightEntries = roomEntries[rightRoomId] ?? [];
-    const leftRect = roomRects[leftRoomId];
-    const rightRect = roomRects[rightRoomId];
-    if (!leftRect || !rightRect) {
+  for (const [doorIndex, door] of world.lab.doors.entries()) {
+    const leafRoomId = door.connects.find((roomId) => roomId !== hubRoom.id);
+    const leafRoom = leafRooms.find((room) => room.id === leafRoomId);
+    if (!leafRoom) {
       continue;
     }
+    const leafRect = roomRects[leafRoom.id]!;
+    const leafIsTop = topRooms.some((room) => room.id === leafRoom.id);
+    const leafSide: FrontageSide = leafIsTop ? "south" : "north";
+    const hubSide: FrontageSide = leafIsTop ? "north" : "south";
+    const leafCenterTiles = leafRect.tx + leafRect.tw / 2;
+    const leafEntry = buildRoomEntry(
+      leafRoom,
+      leafRect,
+      leafSide,
+      leafCenterTiles,
+      door.id,
+      0,
+      false,
+    );
+    const hubEntry = buildRoomEntry(
+      hubRoom,
+      hubRect,
+      hubSide,
+      leafCenterTiles,
+      door.id,
+      doorIndex,
+      true,
+    );
+    roomEntries[leafRoom.id].push(leafEntry);
+    roomEntries[hubRoom.id].push(hubEntry);
 
-    const leftIsHub = hubRoomId === leftRoomId;
-    const rightIsHub = hubRoomId === rightRoomId;
-    const leftEntry = chooseNearestEntry(leftEntries, roomCenterX(rightRect));
-    const rightEntry = chooseNearestEntry(rightEntries, roomCenterX(leftRect));
+    const segmentStart = Math.min(leafEntry.ty, hubEntry.ty) + 1;
+    const segmentEnd = Math.max(leafEntry.ty, hubEntry.ty);
+    corridorSegments.push({
+      kind: "connection",
+      door_id: door.id,
+      room_id: leafRoom.id,
+      entry_id: leafEntry.id,
+      tx: leafEntry.tx,
+      ty: segmentStart,
+      tw: leafEntry.tw,
+      th: Math.max(1, segmentEnd - segmentStart),
+    });
 
-    const endpoints: GeneratedDoorEndpoint[] = [];
-    if (leftEntry) {
-      leftEntry.door_ids.push(door.id);
-      endpoints.push({
-        room_id: leftRoomId,
-        entry_id: leftEntry.id,
-        x: leftEntry.anchor.x,
-        y: leftEntry.anchor.y,
-      });
-    }
-    if (rightEntry) {
-      rightEntry.door_ids.push(door.id);
-      endpoints.push({
-        room_id: rightRoomId,
-        entry_id: rightEntry.id,
-        x: rightEntry.anchor.x,
-        y: rightEntry.anchor.y,
-      });
-    }
-
-    const visualAnchor =
-      leftIsHub && rightEntry
-        ? { ...rightEntry.anchor }
-        : rightIsHub && leftEntry
-          ? { ...leftEntry.anchor }
-          : endpoints.length === 2
-            ? {
-                x: (endpoints[0].x + endpoints[1].x) / 2,
-                y: (endpoints[0].y + endpoints[1].y) / 2,
-              }
-            : endpoints[0]
-              ? { x: endpoints[0].x, y: endpoints[0].y }
-              : { x: roomCenterX(leftRect), y: (corridorTy + 0.5) * TILE };
+    const endpointByRoom = new Map<string, GeneratedRoomEntry>([
+      [hubRoom.id, hubEntry],
+      [leafRoom.id, leafEntry],
+    ]);
+    const endpoints = door.connects.map((roomId) => {
+      const entry = endpointByRoom.get(roomId)!;
+      return {
+        room_id: roomId,
+        entry_id: entry.id,
+        x: entry.anchor.x,
+        y: entry.anchor.y,
+      };
+    });
+    const visualAnchor = {
+      x: leafEntry.anchor.x,
+      y: (leafEntry.anchor.y + hubEntry.anchor.y) / 2,
+    };
 
     doorRoutes[door.id] = {
       door_id: door.id,
-      connects: [leftRoomId, rightRoomId],
+      connects: [...door.connects] as [string, string],
       endpoints,
       visual_anchor: visualAnchor,
-      spine_y: spineY,
+      spine_y: null,
     };
   }
 
@@ -413,7 +360,7 @@ function buildGeneratedLayout(world: WorldState): GeneratedLabLayout {
     corridorSegments,
     roomEntries,
     doorRoutes,
-    hubRoomId,
+    hubRoomId: hubRoom.id,
     mapWidthTiles,
     mapHeightTiles,
   };

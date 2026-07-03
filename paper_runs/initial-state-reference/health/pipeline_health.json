@@ -12,8 +12,8 @@
     "At least one run recorded provider errors.",
     "At least one run recorded a runtime error.",
     "At least one run ended in runner_failure.",
-    "Mean invalid action outputs exceeded the scale limit (1.0).",
-    "Mean action-output retries exceeded the scale limit (1.0)."
+    "Mean invalid action outputs exceeded the diagnostic limit (1.0).",
+    "Mean action-output retries exceeded the diagnostic limit (1.0)."
   ],
   "bundle_dir": "paper_runs/initial-state-reference",
   "bundle_valid": true,
@@ -142,7 +142,6 @@
   "mean_tool_retry_count": 1.7053571428571428,
   "missing_trace_rows": [],
   "provider_error_rows": 1,
-  "ready_for_scale": false,
   "running_runs": [],
   "total_expected_runs": 224,
   "total_runs": 224,
@@ -152,5 +151,6 @@
     "8 runs exceeded the prompt-token warning band (200000).",
     "24 runs fell below the completion ratio floor (0.2).",
     "5 runs recorded artifact-integrity issues."
-  ]
+  ],
+  "diagnostics_clear": false
 }

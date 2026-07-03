@@ -163,7 +163,7 @@ def test_cli_paper_audit_outputs_json(monkeypatch, tmp_path: Path) -> None:
                 "model_dump": lambda self, mode="json": {
                     "mode": "repo",
                     "valid": True,
-                    "launch_ready": False,
+                    "diagnostics_clear": False,
                     "blocking_reasons": [],
                 },
             },

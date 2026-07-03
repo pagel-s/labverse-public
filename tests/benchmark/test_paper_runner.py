@@ -339,7 +339,7 @@ def test_paper_runner_writes_health_report_and_run_artifacts(tmp_path: Path) -> 
     report = build_pipeline_health_report(bundle_dir)
     assert report.total_runs == 1
     assert report.bundle_valid is True
-    assert report.ready_for_scale is True
+    assert report.diagnostics_clear is True
 
 
 def test_model_bundle_writes_normalized_trace_and_generic_output_metrics(
@@ -476,7 +476,7 @@ def test_model_bundle_writes_normalized_trace_and_generic_output_metrics(
     assert build_pipeline_health_report(bundle_dir).bundle_valid is True
 
 
-def test_bundle_status_and_health_mark_incomplete_bundle_not_ready_for_scale(
+def test_bundle_status_and_health_mark_incomplete_bundle_has_diagnostics(
     tmp_path: Path,
 ) -> None:
     bundle_dir = tmp_path / "paper-bundle"
@@ -501,10 +501,10 @@ def test_bundle_status_and_health_mark_incomplete_bundle_not_ready_for_scale(
     health = build_pipeline_health_report(bundle_dir)
 
     assert status.validation_ok is True
-    assert status.ready_for_scale is False
+    assert status.diagnostics_clear is False
     assert any("incomplete" in reason.casefold() for reason in status.blocking_reasons)
     assert health.bundle_valid is True
-    assert health.ready_for_scale is False
+    assert health.diagnostics_clear is False
     assert any("incomplete" in reason.casefold() for reason in health.blocking_reasons)
 
 
@@ -571,8 +571,8 @@ def test_bundle_status_uses_same_scale_gate_as_health_report(tmp_path: Path) -> 
     status = bundle_status(bundle_dir)
     health = build_pipeline_health_report(bundle_dir)
 
-    assert health.ready_for_scale is False
-    assert status.ready_for_scale is False
+    assert health.diagnostics_clear is False
+    assert status.diagnostics_clear is False
     assert status.blocking_reasons == health.blocking_reasons
 
 
@@ -1032,7 +1032,7 @@ def test_error_taxonomy_treats_one_shot_planner_grounding_failure_as_grounding_f
     assert taxonomy == "grounding_failure"
 
 
-def test_health_not_ready_for_scale_when_row_records_runtime_error(tmp_path: Path) -> None:
+def test_health_reports_diagnostics_when_row_records_runtime_error(tmp_path: Path) -> None:
     bundle_dir = tmp_path / "paper-bundle"
     bundle = run_paper_experiment(
         conditions=["scripted_oracle"],
@@ -1058,7 +1058,7 @@ def test_health_not_ready_for_scale_when_row_records_runtime_error(tmp_path: Pat
 
     health = build_pipeline_health_report(bundle_dir)
 
-    assert health.ready_for_scale is False
+    assert health.diagnostics_clear is False
     assert any("runtime error" in reason.casefold() for reason in health.blocking_reasons)
 
 
@@ -1175,7 +1175,7 @@ def test_health_allows_grounding_failure_without_runtime_blocker(tmp_path: Path)
 
     health = build_pipeline_health_report(bundle_dir)
 
-    assert health.ready_for_scale is True
+    assert health.diagnostics_clear is True
     assert not any("runtime error" in reason.casefold() for reason in health.blocking_reasons)
     assert not any("runner_failure" in reason.casefold() for reason in health.blocking_reasons)
 
@@ -1215,12 +1215,12 @@ def test_health_normalizes_legacy_runner_failure_grounding_rows(tmp_path: Path) 
 
     health = build_pipeline_health_report(bundle_dir)
 
-    assert health.ready_for_scale is True
+    assert health.diagnostics_clear is True
     assert not any("runtime error" in reason.casefold() for reason in health.blocking_reasons)
     assert not any("runner_failure" in reason.casefold() for reason in health.blocking_reasons)
 
 
-def test_health_not_ready_for_scale_when_row_records_semantic_fallback(tmp_path: Path) -> None:
+def test_health_reports_diagnostics_when_row_records_semantic_fallback(tmp_path: Path) -> None:
     bundle_dir = tmp_path / "paper-bundle"
     bundle = run_paper_experiment(
         conditions=["scripted_oracle"],
@@ -1245,7 +1245,7 @@ def test_health_not_ready_for_scale_when_row_records_semantic_fallback(tmp_path:
 
     health = build_pipeline_health_report(bundle_dir)
 
-    assert health.ready_for_scale is False
+    assert health.diagnostics_clear is False
     assert any("semantic fallback" in reason.casefold() for reason in health.blocking_reasons)
 
 

@@ -210,7 +210,7 @@
       "single_turn_prompt_tokens": 35000
     }
   },
-  "tool_schema_parity_note": "Interactive conditions use per-turn closed-enum tool schemas whose choice set is exactly the current affordance surface. The one-shot planner uses an open-verb schema because turn N+1's affordances depend on turn N's side effects, which are unavailable at planning time. This asymmetry is intentional and documented in docs/paper-scientific-contract.md.",
+  "tool_schema_parity_note": "Interactive conditions use per-turn closed-enum tool schemas whose choice set is exactly the current affordance surface. The one-shot planner uses an open-verb schema because turn N+1's affordances depend on turn N's side effects, which are unavailable at planning time. This asymmetry is intentional and is part of the frozen benchmark contract.",
   "track": "neurips_main_track",
   "version": "3.0.0"
 }
