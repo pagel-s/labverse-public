@@ -5,6 +5,18 @@ in procedural wet-lab tasks. This public artifact contains the frozen benchmark,
 the reproduction pipeline, a paper trace viewer, figure scripts, and full-trace
 empirical bundles used for the paper figures and sensitivity checks.
 
+## Replay Preview
+
+<video src="paper/videos/headline_labverse_replay.mp4" controls muted loop playsinline width="100%"></video>
+
+The preview above is generated from a frozen `chemical_spill_response` trace and
+shows how LabVerse links model outputs, executable actions, and laboratory state
+updates. Regenerate it with:
+
+```bash
+python scripts/render_headline_video.py
+```
+
 ## Included Bundles
 
 ```text
