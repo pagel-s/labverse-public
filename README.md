@@ -7,11 +7,11 @@ empirical bundles used for the paper figures and sensitivity checks.
 
 ## Replay Preview
 
-<video src="paper/videos/headline_labverse_replay.mp4" controls muted loop playsinline width="100%"></video>
+[![LabVerse replay preview](paper/videos/headline_labverse_replay_preview.gif)](paper/videos/headline_labverse_replay.mp4)
 
-The preview above is generated from a frozen `chemical_spill_response` trace and
-shows how LabVerse links model outputs, executable actions, and laboratory state
-updates. Regenerate it with:
+The preview above links to the full-resolution MP4 replay. It is generated from
+a frozen `chemical_spill_response` trace and shows how LabVerse links model
+outputs, executable actions, and laboratory state updates. Regenerate it with:
 
 ```bash
 python scripts/render_headline_video.py
