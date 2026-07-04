@@ -185,7 +185,9 @@ export default function PaperView(): JSX.Element {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [savingScene, setSavingScene] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [replayMode, setReplayMode] = useState<ReplayMode>(capture?.replayMode ?? "after");
+  const [replayMode, setReplayMode] = useState<ReplayMode>(
+    capture?.autoplay ? "before" : capture?.replayMode ?? "after",
+  );
   const [capturedScene, setCapturedScene] = useState<string | null>(null);
   const [captureSceneReady, setCaptureSceneReady] = useState(false);
   const loadRunRequestId = useRef(0);
@@ -394,14 +396,21 @@ export default function PaperView(): JSX.Element {
     if (!capture?.autoplay || steps.length <= 1 || currentStepIndex < 0) {
       return;
     }
+    if (replayMode === "before") {
+      const timer = window.setTimeout(() => {
+        setReplayMode("after");
+      }, 520);
+      return () => window.clearTimeout(timer);
+    }
     const timer = window.setTimeout(() => {
       const next = steps[(currentStepIndex + 1) % steps.length];
       if (next) {
+        setReplayMode("before");
         setSelectedStep(next.step_index);
       }
-    }, 1650);
+    }, 1350);
     return () => window.clearTimeout(timer);
-  }, [capture?.autoplay, steps, currentStepIndex]);
+  }, [capture?.autoplay, steps, currentStepIndex, replayMode]);
 
   useEffect(() => {
     if (!capture) return;

@@ -34,7 +34,7 @@ DEFAULT_GIF = Path("paper/videos/headline_labverse_replay_preview.gif")
 BACKEND_URL = "http://127.0.0.1:8001/api/paper/health"
 FRONTEND_URL = "http://127.0.0.1:5173"
 CAPTURE_FPS = 8
-STEP_SECONDS = 1.65
+STEP_SECONDS = 1.9
 INTRO_SECONDS = 0.8
 
 

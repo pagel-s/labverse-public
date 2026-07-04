@@ -394,9 +394,11 @@ export class LabScene extends Phaser.Scene {
     this.generatedLayout = labLayout;
     this.ensureGeneratedTilemap(world);
     this.drawProceduralRooms(world);
+    const previousMapW = this.mapW;
+    const previousMapH = this.mapH;
     this.mapW = this.generatedLayout.mapWidthTiles * TILE;
     this.mapH = this.generatedLayout.mapHeightTiles * TILE;
-    this.updateCameraExtents();
+    this.updateCameraExtents(previousMapW !== this.mapW || previousMapH !== this.mapH);
 
     this.drawAmbient(world);
     this.setupRoomLabels(world);
@@ -687,10 +689,12 @@ export class LabScene extends Phaser.Scene {
     });
   }
 
-  private updateCameraExtents(): void {
+  private updateCameraExtents(refit = true): void {
     const cam = this.cameras.main;
     cam.setBounds(-TILE * 2, -TILE * 2, this.mapW + TILE * 4, this.mapH + TILE * 4);
-    this.fitCameraToReadableLab();
+    if (refit) {
+      this.fitCameraToReadableLab();
+    }
     this.drawGrid();
   }
 
