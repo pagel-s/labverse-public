@@ -128,6 +128,25 @@ def devtools_ports(is_windows_browser: bool) -> list[int]:
     return [free_port()]
 
 
+def cleanup_windows_capture_chrome() -> None:
+    powershell = Path("/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe")
+    if not powershell.exists():
+        return
+    command = (
+        "Get-CimInstance Win32_Process | "
+        "Where-Object { $_.Name -eq 'chrome.exe' "
+        "-and $_.CommandLine -match '--headless=new' "
+        "-and $_.CommandLine -match 'labverse-real-capture' } | "
+        "ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"
+    )
+    subprocess.run(
+        [str(powershell), "-NoProfile", "-Command", command],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+
+
 def devtools_port_in_use(port: int) -> bool:
     try:
         with urllib.request.urlopen(f"http://127.0.0.1:{port}/json/version", timeout=0.4):
@@ -313,6 +332,8 @@ def capture_frames(chrome: Path, bundle: Path, run: Path, steps: list[int], out_
     chrome_process: subprocess.Popen[str] | None = None
     client: CdpClient | None = None
     try:
+        if is_windows_browser:
+            cleanup_windows_capture_chrome()
         devtools_host: str | None = None
         targets: list[dict[str, object]] | None = None
         last_error: Exception | None = None
@@ -345,6 +366,10 @@ def capture_frames(chrome: Path, bundle: Path, run: Path, steps: list[int], out_
             except Exception as exc:
                 last_error = exc
                 chrome_process.terminate()
+                try:
+                    chrome_process.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    chrome_process.kill()
                 chrome_process = None
         if devtools_host is None or targets is None:
             raise RuntimeError(f"Chrome DevTools did not become ready: {last_error}")
@@ -396,6 +421,12 @@ def capture_frames(chrome: Path, bundle: Path, run: Path, steps: list[int], out_
             client.close()
         if chrome_process is not None:
             chrome_process.terminate()
+            try:
+                chrome_process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                chrome_process.kill()
+        if is_windows_browser:
+            cleanup_windows_capture_chrome()
 
 
 def encode(frames: list[Path], mp4: Path, gif: Path) -> None:

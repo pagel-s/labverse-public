@@ -321,6 +321,9 @@ export class LabScene extends Phaser.Scene {
   private generatedTileLayers: Phaser.Tilemaps.TilemapLayer[] = [];
   private generatedLayoutKey: string | null = null;
   private generatedLayout: GeneratedLabLayout | null = null;
+  private fixedLayout: GeneratedLabLayout | null = null;
+  private fixedLayoutKey: string | null = null;
+  private fixedTopologyKey: string | null = null;
   private equipmentAnchors = new Map<string, { x: number; y: number; label: string; status: string }>();
   private doorAnchors = new Map<string, { x: number; y: number; door: Door }>();
 
@@ -389,7 +392,17 @@ export class LabScene extends Phaser.Scene {
     if (!this.mapReady) return;
 
     this.lastWorld = world;
-    const labLayout = getLabLayout(world);
+    const topologyKey = this.worldTopologyKey(world);
+    if (this.fixedTopologyKey !== topologyKey) {
+      this.fixedLayout = null;
+      this.fixedLayoutKey = null;
+      this.fixedTopologyKey = topologyKey;
+    }
+    const labLayout = this.fixedLayout ?? getLabLayout(world);
+    if (!this.fixedLayout) {
+      this.fixedLayout = labLayout;
+      this.fixedLayoutKey = this.layoutGeometryKey(labLayout);
+    }
     this.roomRects = labLayout.roomRects;
     this.generatedLayout = labLayout;
     this.ensureGeneratedTilemap(world);
@@ -766,13 +779,40 @@ export class LabScene extends Phaser.Scene {
   }
 
   private generatedWorldKey(world: WorldState): string {
-    return Object.entries(this.roomRects)
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([roomId, rect]) => {
-        const room = world.lab.rooms[roomId];
-        return `${roomId}:${room?.room_type ?? "unknown"}:${rect.tx},${rect.ty},${rect.tw},${rect.th}`;
+    if (this.fixedLayoutKey) {
+      return this.fixedLayoutKey;
+    }
+    return this.layoutGeometryKey(this.generatedLayout ?? getLabLayout(world));
+  }
+
+  private worldTopologyKey(world: WorldState): string {
+    const rooms = Object.values(world.lab.rooms)
+      .sort((left, right) => left.id.localeCompare(right.id))
+      .map((room) => {
+        const zones = room.zones
+          .map((zone) => `${zone.id}:${zone.zone_type}:${zone.position.x},${zone.position.y},${zone.width},${zone.height}`)
+          .sort()
+          .join(";");
+        return `${room.id}:${room.room_type}:${room.width},${room.height}:${zones}`;
       })
       .join("|");
+    const doors = world.lab.doors
+      .map((door) => `${door.id}:${[...door.connects].sort().join("<>")}`)
+      .sort()
+      .join("|");
+    return `${rooms}::${doors}`;
+  }
+
+  private layoutGeometryKey(layout: GeneratedLabLayout): string {
+    const roomKeys = Object.entries(layout.roomRects)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([roomId, rect]) => `${roomId}:${rect.tx},${rect.ty},${rect.tw},${rect.th}`)
+      .join("|");
+    const routeKeys = Object.entries(layout.doorRoutes)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([doorId, route]) => `${doorId}:${route.endpoints.map((endpoint) => `${endpoint.room_id}:${endpoint.x},${endpoint.y}`).join(";")}`)
+      .join(",");
+    return `${roomKeys}::${routeKeys}`;
   }
 
   private clearGeneratedTilemap(): void {

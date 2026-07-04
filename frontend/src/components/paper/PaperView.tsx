@@ -557,7 +557,7 @@ export default function PaperView(): JSX.Element {
                 onSelectAgent={() => {}}
                 onSelectEquipment={() => {}}
                 onSelectRoom={() => {}}
-                selectedAgentId={replayFrame?.actor_id ?? null}
+                selectedAgentId={null}
                 selectedEquipmentId={null}
                 selectedRoomId={null}
                 world={replayWorld}
