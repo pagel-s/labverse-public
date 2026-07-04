@@ -130,6 +130,7 @@ function captureConfig(): {
   runPath: string | null;
   stepIndex: number | null;
   replayMode: ReplayMode;
+  autoplay: boolean;
 } | null {
   if (typeof window === "undefined") return null;
   const params = new URLSearchParams(window.location.search);
@@ -140,6 +141,32 @@ function captureConfig(): {
     runPath: params.get("run"),
     stepIndex: Number.isFinite(requestedStep) ? requestedStep : null,
     replayMode: params.get("mode") === "before" ? "before" : "after",
+    autoplay: params.get("autoplay") === "1",
+  };
+}
+
+function captureCaption(
+  stepIndex: number | null,
+  totalSteps: number,
+  detail: PaperStepDetail | null,
+): { title: string; body: string } | null {
+  if (stepIndex === null || !detail) return null;
+  const step = detail.step as Record<string, unknown>;
+  const actionResult = step.action_result as Record<string, unknown> | undefined;
+  const description =
+    typeof actionResult?.description === "string"
+      ? actionResult.description
+      : detail.replay_frame?.change_summary[0] ?? null;
+  const label = stepLabel({
+    resolved_candidate_ref: detail.replay_frame?.resolved_candidate_ref ?? null,
+    resolved_verb: detail.replay_frame?.resolved_verb ?? null,
+    resolved_action_id: detail.replay_frame?.resolved_action_id ?? null,
+    prompt_surface_kind:
+      typeof step.prompt_surface_kind === "string" ? step.prompt_surface_kind : null,
+  });
+  return {
+    title: `Step ${stepIndex}/${totalSteps} · ${label.replaceAll("_", " ")}`,
+    body: description ?? "Recorded laboratory state transition.",
   };
 }
 
@@ -160,6 +187,7 @@ export default function PaperView(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [replayMode, setReplayMode] = useState<ReplayMode>(capture?.replayMode ?? "after");
   const [capturedScene, setCapturedScene] = useState<string | null>(null);
+  const [captureSceneReady, setCaptureSceneReady] = useState(false);
   const loadRunRequestId = useRef(0);
   const loadDetailRequestId = useRef(0);
   const filmstripRef = useRef<HTMLDivElement | null>(null);
@@ -216,6 +244,7 @@ export default function PaperView(): JSX.Element {
               : replayFrame.change_summary[0] ?? "Recorded paper step"),
         }
       : null;
+  const caption = captureCaption(selectedStep, steps.length, stepDetail);
 
   const currentStepIndex = useMemo(
     () => (selectedStep === null ? -1 : steps.findIndex((s) => s.step_index === selectedStep)),
@@ -340,7 +369,14 @@ export default function PaperView(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (!capture || capturedScene || !replayWorld || !stepDetailMatchesSelection || replayLoading) {
+    if (
+      !capture ||
+      capture.autoplay ||
+      capturedScene ||
+      !replayWorld ||
+      !stepDetailMatchesSelection ||
+      replayLoading
+    ) {
       return;
     }
     const timer = window.setTimeout(() => {
@@ -353,6 +389,39 @@ export default function PaperView(): JSX.Element {
     }, 700);
     return () => window.clearTimeout(timer);
   }, [capture, capturedScene, replayWorld, replayLoading, stepDetailMatchesSelection]);
+
+  useEffect(() => {
+    if (!capture?.autoplay || steps.length <= 1 || currentStepIndex < 0) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      const next = steps[(currentStepIndex + 1) % steps.length];
+      if (next) {
+        setSelectedStep(next.step_index);
+      }
+    }, 1650);
+    return () => window.clearTimeout(timer);
+  }, [capture?.autoplay, steps, currentStepIndex]);
+
+  useEffect(() => {
+    if (!capture) return;
+    const timer = window.setInterval(() => {
+      const canvas = document.querySelector<HTMLCanvasElement>(".paper-capture-stage canvas");
+      setCaptureSceneReady(Boolean(canvas && canvas.width > 100 && canvas.height > 100));
+    }, 100);
+    return () => window.clearInterval(timer);
+  }, [capture]);
+
+  useEffect(() => {
+    if (!capture) return;
+    document.body.dataset.captureReady =
+      replayWorld && stepDetailMatchesSelection && captureSceneReady ? "1" : "0";
+    document.body.dataset.captureStep = selectedStep === null ? "" : String(selectedStep);
+    return () => {
+      delete document.body.dataset.captureReady;
+      delete document.body.dataset.captureStep;
+    };
+  }, [capture, captureSceneReady, replayWorld, selectedStep, stepDetailMatchesSelection]);
 
   useEffect(() => {
     if (selectedRun) {
@@ -459,10 +528,13 @@ export default function PaperView(): JSX.Element {
   if (capture) {
     return (
       <div className="paper-capture-page">
-        {capturedScene ? (
+        {capturedScene && !capture.autoplay ? (
           <img alt="Captured LabVerse replay scene" src={capturedScene} />
         ) : replayWorld ? (
-          <div className="paper-capture-stage" aria-label="Preparing LabVerse replay capture">
+          <div
+            className={`paper-capture-stage${capture.autoplay ? " paper-capture-stage--video" : ""}`}
+            aria-label="Preparing LabVerse replay capture"
+          >
             <Suspense
               fallback={
                 <div className="paper-capture-loading">
@@ -482,6 +554,12 @@ export default function PaperView(): JSX.Element {
                 world={replayWorld}
               />
             </Suspense>
+            {caption && (
+              <div className="paper-capture-caption" aria-label="Current replay step">
+                <strong>{caption.title}</strong>
+                <span>{caption.body}</span>
+              </div>
+            )}
           </div>
         ) : (
           <div className="paper-capture-loading">

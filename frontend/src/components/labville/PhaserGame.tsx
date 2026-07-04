@@ -68,6 +68,8 @@ const PhaserGame = forwardRef<PhaserGameHandle, PhaserGameProps>(function Phaser
   latestAgent.current = selectedAgentId;
   const latestEquipment = useRef(selectedEquipmentId);
   latestEquipment.current = selectedEquipmentId;
+  const latestActionFeedback = useRef(actionFeedback);
+  latestActionFeedback.current = actionFeedback;
 
   // Create game on mount
   useEffect(() => {
@@ -93,10 +95,14 @@ const PhaserGame = forwardRef<PhaserGameHandle, PhaserGameProps>(function Phaser
       if (latestRoom.current) labScene.selectRoom(latestRoom.current);
       if (latestAgent.current) labScene.selectAgent(latestAgent.current);
       if (latestEquipment.current) labScene.selectEquipment(latestEquipment.current);
+      if (latestActionFeedback.current) labScene.showActionFeedback(latestActionFeedback.current);
     });
 
+    const captureMode =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("capture") === "1";
     const game = new Phaser.Game({
-      type: Phaser.AUTO,
+      type: captureMode ? Phaser.CANVAS : Phaser.AUTO,
       parent: containerRef.current,
       width: containerRef.current.clientWidth,
       height: containerRef.current.clientHeight,
@@ -130,6 +136,9 @@ const PhaserGame = forwardRef<PhaserGameHandle, PhaserGameProps>(function Phaser
     if (!world) return;
     if (sceneReady.current && sceneRef.current) {
       sceneRef.current.syncWorld(world);
+      if (latestActionFeedback.current) {
+        sceneRef.current.showActionFeedback(latestActionFeedback.current);
+      }
     } else {
       pendingWorld.current = world;
     }

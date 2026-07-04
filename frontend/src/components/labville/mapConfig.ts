@@ -211,8 +211,8 @@ function buildGeneratedLayout(world: WorldState): GeneratedLabLayout {
       roomLayoutPriority(left) - roomLayoutPriority(right) || left.name.localeCompare(right.name),
   );
   const margin = 2;
-  const gap = 2;
-  const connectionDepth = 3;
+  const gap = 1;
+  const connectionDepth = 2;
   const degrees = buildDegreeMap(world.lab.doors);
   const hubRoomId = detectHubRoom(sorted, world.lab.doors);
   const hubRoom = sorted.find((room) => room.id === hubRoomId) ?? sorted[0];
