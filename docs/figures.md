@@ -21,6 +21,25 @@ paper/figures/sensitivity_initial_conditions.{pdf,svg,png}
 The script also writes source CSV files for the quantitative panels under
 `paper/figures/`.
 
+## Headline Replay Video
+
+The public artifact also includes a short 1080p replay video generated from the
+same frozen trace data used by the web inspector:
+
+```bash
+python scripts/render_headline_video.py
+```
+
+This writes:
+
+```text
+paper/videos/headline_labverse_replay.mp4
+```
+
+By default the video uses the successful canonical `chemical_spill_response`
+trace from `gemma4:31b` under the global one-shot planner. To render another
+trace, pass `--bundle`, `--run`, and `--output`.
+
 For manuscript assembly, the restrained journal-style plates are the best
 starting point:
 
