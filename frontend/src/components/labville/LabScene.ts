@@ -683,9 +683,8 @@ export class LabScene extends Phaser.Scene {
     const zoomX = cam.width / Math.max(this.mapW, 1);
     const zoomY = cam.height / Math.max(this.mapH, 1);
     const fitZoom = Math.min(zoomX, zoomY) * 0.95;
-    const fillHeightZoom = zoomY * 0.98;
-    const readableZoom = cam.width < 760 ? 0.9 : 0.82;
-    cam.setZoom(Phaser.Math.Clamp(Math.max(fitZoom, fillHeightZoom, readableZoom), 0.45, 1.5));
+    const gentleFillZoom = Math.min(zoomY * 0.98, fitZoom * 1.08);
+    cam.setZoom(Phaser.Math.Clamp(Math.max(fitZoom, gentleFillZoom), 0.35, 1.5));
     if (center) {
       cam.centerOn(this.mapW / 2, this.mapH / 2);
     }

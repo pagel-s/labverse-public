@@ -11,7 +11,7 @@ labverse version
 ## Serve The Paper API
 
 ```bash
-labverse paper-serve --host 127.0.0.1 --port 8000
+labverse paper-serve --host 127.0.0.1 --port 8001
 ```
 
 ## Run Or Preflight The Paper Matrix

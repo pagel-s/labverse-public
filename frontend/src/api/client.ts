@@ -455,6 +455,8 @@ export interface PaperStepDetail {
 const API_BASE = import.meta.env.VITE_LABVERSE_API_BASE_URL ?? "/api";
 
 const REQUEST_TIMEOUT_MS = 30_000;
+const PAPER_API_HELP =
+  "Paper API is not reachable. Start `labverse paper-serve --host 0.0.0.0 --port 8001`, keep the Vite dev server on 5173, then reload.";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController();
@@ -474,6 +476,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     if (err instanceof DOMException && err.name === "AbortError") {
       throw new Error(`Request to ${path} timed out after ${REQUEST_TIMEOUT_MS / 1000}s`);
     }
+    if (err instanceof TypeError) {
+      throw new Error(PAPER_API_HELP);
+    }
     throw err;
   } finally {
     clearTimeout(timeout);
@@ -489,9 +494,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       // Keep the HTTP status fallback.
     }
-    if (response.status === 500 && API_BASE === "/api") {
-      message =
-        "Paper API is not reachable. Start `labverse paper-serve --host 127.0.0.1 --port 8001` and reload.";
+    if ((response.status === 404 || response.status === 500 || response.status === 502) && API_BASE === "/api") {
+      message = PAPER_API_HELP;
     }
     throw new Error(message);
   }
@@ -511,6 +515,10 @@ function withQuery(path: string, query: Record<string, string | boolean | undefi
 }
 
 export const apiClient = {
+  getPaperHealth(): Promise<{ status: string; service: string }> {
+    return request<{ status: string; service: string }>("/paper/health");
+  },
+
   getPaperBundleStatus(bundleDir: string): Promise<PaperBundleStatus> {
     return request<PaperBundleStatus>(
       withQuery("/paper/status", { bundle_dir: bundleDir }),

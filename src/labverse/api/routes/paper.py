@@ -20,6 +20,11 @@ from labverse.paper import (
 router = APIRouter(prefix="/paper", tags=["paper"])
 
 
+@router.get("/health")
+async def paper_health() -> dict[str, str]:
+    return {"status": "ok", "service": "paper"}
+
+
 @router.get("/status", response_model=BundleStatusReport)
 async def paper_status(
     bundle_dir: str = Query(..., description="Path to the paper bundle directory."),

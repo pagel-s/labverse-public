@@ -43,7 +43,7 @@ def version() -> None:
 @app.command("paper-serve")
 def paper_serve(
     host: str = typer.Option("127.0.0.1", help="Host interface to bind."),
-    port: int = typer.Option(8000, help="Port to bind."),
+    port: int = typer.Option(8001, help="Port to bind."),
 ) -> None:
     """Start the paper-bundle inspection API."""
     uvicorn.run(create_app(), host=host, port=port, log_level="info")

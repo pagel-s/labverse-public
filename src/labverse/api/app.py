@@ -17,6 +17,15 @@ _DEFAULT_CORS_ORIGINS = [
     "http://localhost:4173",
     "http://127.0.0.1:4173",
 ]
+_LOCAL_ORIGIN_REGEX = (
+    r"^https?://("
+    r"localhost|127\.0\.0\.1|0\.0\.0\.0|"
+    r"10\.\d+\.\d+\.\d+|"
+    r"100\.\d+\.\d+\.\d+|"
+    r"172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|"
+    r"192\.168\.\d+\.\d+"
+    r"):(5173|4173)$"
+)
 
 
 def create_app(config_path: str | Path | None = None) -> FastAPI:
@@ -39,6 +48,7 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=cors_origins,
+        allow_origin_regex=_LOCAL_ORIGIN_REGEX,
         allow_credentials=True,
         allow_methods=["GET", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization", "X-Request-ID"],

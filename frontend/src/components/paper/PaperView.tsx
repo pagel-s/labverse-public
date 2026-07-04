@@ -207,6 +207,7 @@ export default function PaperView(): JSX.Element {
     setLoadingBundle(true);
     setError(null);
     try {
+      await apiClient.getPaperHealth();
       const [nextStatus, nextRuns] = await Promise.all([
         apiClient.getPaperBundleStatus(normalized),
         apiClient.listPaperRuns(normalized),
@@ -227,15 +228,6 @@ export default function PaperView(): JSX.Element {
         window.localStorage.setItem(LAST_BUNDLE_KEY, normalized);
       }
     } catch (err) {
-      if (normalized !== DEFAULT_BUNDLE_DIR) {
-        setBundleDir(DEFAULT_BUNDLE_DIR);
-        setLoadedBundleDir(DEFAULT_BUNDLE_DIR);
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem(LAST_BUNDLE_KEY, DEFAULT_BUNDLE_DIR);
-        }
-        await loadBundle(DEFAULT_BUNDLE_DIR);
-        return;
-      }
       setError(err instanceof Error ? err.message : "Failed to load paper bundle.");
       setStatus(null);
       setRuns([]);
@@ -485,7 +477,14 @@ export default function PaperView(): JSX.Element {
         )}
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && (
+        <div className="error-banner">
+          <strong>{error}</strong>
+          <span>
+            Expected local setup: <code>labverse paper-serve --host 0.0.0.0 --port 8001</code>
+          </span>
+        </div>
+      )}
 
       <div className="paper-grid">
         {/* ── Rail ──────────────────────────────────────── */}

@@ -320,7 +320,7 @@
   border-radius: var(--radius-2);
   background: var(--paper-inverse);
   overflow: hidden;
-  min-height: 280px;
+  min-height: 260px;
   min-width: 0;
   flex: 1 1 0;
   display: flex;
@@ -874,7 +874,7 @@
   .paper-stage-frame {
     order: 4;
     flex: 0 0 auto;
-    min-height: clamp(320px, 46vh, 560px);
+    min-height: clamp(300px, 42vh, 500px);
   }
   .paper-deltas {
     order: 5;
@@ -901,7 +901,7 @@
     max-height: none;
   }
   .paper-stage-frame {
-    min-height: clamp(340px, 54vh, 560px);
+    min-height: clamp(280px, 40vh, 460px);
   }
   .paper-bundle-bar {
     grid-template-columns: 1fr;
@@ -934,7 +934,7 @@
     font-size: var(--text-xl);
   }
   .paper-stage-frame {
-    min-height: clamp(320px, 50vh, 500px);
+    min-height: clamp(240px, 36vh, 380px);
   }
   .paper-stage-buttons {
     flex-wrap: wrap;
