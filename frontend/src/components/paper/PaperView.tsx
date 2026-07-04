@@ -66,6 +66,10 @@ function initialBundlePath(): string {
   if (typeof window === "undefined") {
     return DEFAULT_BUNDLE_DIR;
   }
+  const queryBundle = new URLSearchParams(window.location.search).get("bundle");
+  if (queryBundle) {
+    return queryBundle;
+  }
   const saved = window.localStorage.getItem(LAST_BUNDLE_KEY);
   if (!saved || saved.startsWith("/tmp/")) {
     window.localStorage.setItem(LAST_BUNDLE_KEY, DEFAULT_BUNDLE_DIR);
@@ -121,7 +125,26 @@ function stepLabel(step: { resolved_candidate_ref?: string | null; resolved_verb
   return step.resolved_candidate_ref ?? step.resolved_verb ?? step.resolved_action_id ?? step.prompt_surface_kind ?? "step";
 }
 
+function captureConfig(): {
+  bundleDir: string;
+  runPath: string | null;
+  stepIndex: number | null;
+  replayMode: ReplayMode;
+} | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("capture") !== "1") return null;
+  const requestedStep = Number.parseInt(params.get("step") ?? "", 10);
+  return {
+    bundleDir: params.get("bundle") ?? DEFAULT_BUNDLE_DIR,
+    runPath: params.get("run"),
+    stepIndex: Number.isFinite(requestedStep) ? requestedStep : null,
+    replayMode: params.get("mode") === "before" ? "before" : "after",
+  };
+}
+
 export default function PaperView(): JSX.Element {
+  const capture = useMemo(() => captureConfig(), []);
   const [bundleDir, setBundleDir] = useState(initialBundlePath);
   const [loadedBundleDir, setLoadedBundleDir] = useState(initialBundlePath);
   const [status, setStatus] = useState<PaperBundleStatus | null>(null);
@@ -135,7 +158,8 @@ export default function PaperView(): JSX.Element {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [savingScene, setSavingScene] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [replayMode, setReplayMode] = useState<ReplayMode>("after");
+  const [replayMode, setReplayMode] = useState<ReplayMode>(capture?.replayMode ?? "after");
+  const [capturedScene, setCapturedScene] = useState<string | null>(null);
   const loadRunRequestId = useRef(0);
   const loadDetailRequestId = useRef(0);
   const filmstripRef = useRef<HTMLDivElement | null>(null);
@@ -212,7 +236,12 @@ export default function PaperView(): JSX.Element {
         apiClient.getPaperBundleStatus(normalized),
         apiClient.listPaperRuns(normalized),
       ]);
+      const requestedRun =
+        capture?.runPath && nextRuns.some((run) => run.run_path === capture.runPath)
+          ? capture.runPath
+          : null;
       const nextSelectedRun =
+        requestedRun ??
         nextStatus.running_runs[0] ??
         nextStatus.latest_run ??
         nextRuns[0]?.run_path ??
@@ -252,6 +281,13 @@ export default function PaperView(): JSX.Element {
       setSteps(nextSteps);
       const latestStep = nextSteps[nextSteps.length - 1]?.step_index ?? null;
       setSelectedStep((current) => {
+        if (
+          capture?.runPath === runPath &&
+          capture.stepIndex !== null &&
+          nextSteps.some((step) => step.step_index === capture.stepIndex)
+        ) {
+          return capture.stepIndex;
+        }
         if (current && nextSteps.some((step) => step.step_index === current)) {
           return current;
         }
@@ -302,6 +338,21 @@ export default function PaperView(): JSX.Element {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!capture || capturedScene || !replayWorld || !stepDetailMatchesSelection || replayLoading) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      void phaserGameRef.current
+        ?.captureScene()
+        .then(setCapturedScene)
+        .catch((captureError: unknown) => {
+          setError(captureError instanceof Error ? captureError.message : "Could not capture the replay scene.");
+        });
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, [capture, capturedScene, replayWorld, replayLoading, stepDetailMatchesSelection]);
 
   useEffect(() => {
     if (selectedRun) {
@@ -403,6 +454,42 @@ export default function PaperView(): JSX.Element {
     } finally {
       setSavingScene(false);
     }
+  }
+
+  if (capture) {
+    return (
+      <div className="paper-capture-page">
+        {capturedScene ? (
+          <img alt="Captured LabVerse replay scene" src={capturedScene} />
+        ) : replayWorld ? (
+          <div className="paper-capture-stage" aria-label="Preparing LabVerse replay capture">
+            <Suspense
+              fallback={
+                <div className="paper-capture-loading">
+                  Loading replay renderer.
+                </div>
+              }
+            >
+              <PhaserGame
+                ref={phaserGameRef}
+                actionFeedback={replayFeedback}
+                onSelectAgent={() => {}}
+                onSelectEquipment={() => {}}
+                onSelectRoom={() => {}}
+                selectedAgentId={replayFrame?.actor_id ?? null}
+                selectedEquipmentId={null}
+                selectedRoomId={null}
+                world={replayWorld}
+              />
+            </Suspense>
+          </div>
+        ) : (
+          <div className="paper-capture-loading">
+            {error ?? "Loading recorded LabVerse replay."}
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (

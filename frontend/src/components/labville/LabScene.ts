@@ -569,6 +569,22 @@ export class LabScene extends Phaser.Scene {
     sourceContext.drawImage(snapshot, 0, 0);
 
     const pixels = sourceContext.getImageData(0, 0, source.width, source.height).data;
+    const cornerOffsets = [
+      0,
+      (source.width - 1) * 4,
+      (source.width * (source.height - 1)) * 4,
+      (source.width * source.height - 1) * 4,
+    ];
+    const bgOffset = cornerOffsets.reduce((best, offset) => {
+      const bestLightness = pixels[best] + pixels[best + 1] + pixels[best + 2];
+      const lightness = pixels[offset] + pixels[offset + 1] + pixels[offset + 2];
+      return lightness > bestLightness ? offset : best;
+    }, cornerOffsets[0]);
+    const bg = {
+      r: pixels[bgOffset],
+      g: pixels[bgOffset + 1],
+      b: pixels[bgOffset + 2],
+    };
     let minX = source.width;
     let minY = source.height;
     let maxX = -1;
@@ -577,11 +593,11 @@ export class LabScene extends Phaser.Scene {
     for (let y = 0; y < source.height; y += stride) {
       for (let x = 0; x < source.width; x += stride) {
         const offset = (y * source.width + x) * 4;
-        const differsFromPaper =
-          Math.abs(pixels[offset] - 251) > 8 ||
-          Math.abs(pixels[offset + 1] - 250) > 8 ||
-          Math.abs(pixels[offset + 2] - 247) > 8;
-        if (pixels[offset + 3] > 16 && differsFromPaper) {
+        const differsFromBackground =
+          Math.abs(pixels[offset] - bg.r) > 10 ||
+          Math.abs(pixels[offset + 1] - bg.g) > 10 ||
+          Math.abs(pixels[offset + 2] - bg.b) > 10;
+        if (pixels[offset + 3] > 16 && differsFromBackground) {
           minX = Math.min(minX, x);
           minY = Math.min(minY, y);
           maxX = Math.max(maxX, x);
