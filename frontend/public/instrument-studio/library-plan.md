@@ -9,8 +9,8 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [x] Refrigerated benchtop centrifuge — visually reviewed; 25 state assertions passed; branch `feat/3d-centrifuge-studio`
 - [ ] Mini centrifuge
 - [ ] PCR thermocycler
-- [ ] Biosafety cabinet
-- [ ] CO2 incubator (next)
+- [ ] Biosafety cabinet (next)
+- [x] CO2 incubator — visually reviewed; 44 state assertions passed; branch `feat/3d-incubator-studio`
 - [ ] Autoclave
 - [ ] Inverted microscope
 - [ ] Laboratory refrigerator
@@ -46,3 +46,7 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 ## Consistency rules
 
 Use metre-scale roots, modular geometry and state, clear loading anchors, appropriate device interlocks, and reusable sample identities. Distinguish visual approximations from validated physics. No biological protocols or real hardware control are part of this asset-building work.
+
+## Branch history
+
+`feat/3d-incubator-studio` is based on `feat/3d-centrifuge-studio`, so it contains both reviewed instruments. The original centrifuge branch remains unchanged. Neither branch is merged.
