@@ -1,6 +1,6 @@
 # LabVerse instrument studio
 
-An unbranded, reference-grounded 3D asset library. Available models: refrigerated benchtop centrifuge and CO₂ incubator.
+An unbranded, reference-grounded 3D asset library. Available models: refrigerated benchtop centrifuge, CO₂ incubator, and biological safety cabinet.
 
 ## Open
 
@@ -16,6 +16,8 @@ With the lid open, remove the cover and unload tubes to remove the rotor. Remove
 
 The CO₂ incubator is available at `incubator.html`. Open its independent outer and glass doors, extend any of three shelves, and load or unload six sealed demonstration vessels. Retract shelves before closing the doors. Power and exposure affect a qualitative recovery indicator. The chamber does not implement biological processing or real environmental physics.
 
+The cabinet at `biosafety.html` has a sloped sliding sash, work light, blower and utility indicators, main power, a close-up chamber view, and an optional schematic airflow overlay. Status controls are illustrative and do not establish protective performance.
+
 ## Reuse
 
 - `instruments/centrifuge-model.js`: `createLabCentrifuge(THREE)` returns `{model, update, targets, slotTargets, materials}`. Add `model` to a shared scene and call `update(state, dt, options)` each frame.
@@ -24,6 +26,7 @@ The CO₂ incubator is available at `incubator.html`. Open its independent outer
 - `instruments/incubator-model.js`: `createLabIncubator(THREE)` returns `{model, update, materials}`; construction uses millimetres under a metre-scaled root, like the centrifuge.
 - `instruments/incubator-state.js`: `LabIncubatorState`, with door, shelf, vessel and qualitative recovery state. `incubator.js` binds the controls, events and export.
 - `scene-core.js`: shared camera, lighting and orbit/view controls; it renders on change. Rigid incubator geometry is batched by material while moving assemblies remain separate.
+- `instruments/biosafety-model.js` and `biosafety-state.js`: `createLabBiosafetyCabinet(THREE)` and `LabBiosafetyState`; `biosafety.js` supplies UI bindings, state events, camera presets and export preparation.
 - `model.userData` contains equipment type, scale conventions and interaction anchors.
 
 ## Test
@@ -31,9 +34,10 @@ The CO₂ incubator is available at `incubator.html`. Open its independent outer
 ```sh
 node tests/centrifuge.test.mjs
 node tests/incubator.test.mjs
+node tests/biosafety.test.mjs
 ```
 
-See `references.md` and `incubator-references.md` for sources, modeled features and explicit limitations. See `library-plan.md` for the authorized library scope.
+See `references.md`, `incubator-references.md` and `biosafety-references.md` for sources, modeled features and explicit limitations. See `library-plan.md` for the authorized library scope.
 
 ## License
 
