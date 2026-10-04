@@ -4,7 +4,7 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 
 ## Core equipment
 
-- [ ] Automated liquid-handling robot (existing prototype needs unbranding and conversion to reusable architecture)
+- [ ] Automated liquid-handling robot — existing prototype added to gallery and unbranded; conversion to reusable architecture remains
 - [ ] Manual pipettes
 - [x] Refrigerated benchtop centrifuge — visually reviewed; 25 state assertions passed; branch `feat/3d-centrifuge-studio`
 - [ ] Mini centrifuge
@@ -52,3 +52,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-incubator-studio` is based on `feat/3d-centrifuge-studio`, so it contains both reviewed instruments. The original centrifuge branch remains unchanged. Neither branch is merged.
 
 `feat/3d-biosafety-cabinet-studio` is based on the incubator branch and contains all three reviewed instruments. It adds cache versioning for shared scene changes and a cabinet close-up camera.
+
+`feat/gallery-pipetting-robot` adds the existing robot to the gallery, based on the biosafety-cabinet branch. Model/state modularization remains outstanding.

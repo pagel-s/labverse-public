@@ -1,6 +1,6 @@
 # LabVerse instrument studio
 
-An unbranded, reference-grounded 3D asset library. Available models: refrigerated benchtop centrifuge, CO₂ incubator, and biological safety cabinet.
+An unbranded, reference-grounded 3D asset library. Available models: refrigerated benchtop centrifuge, CO₂ incubator, biological safety cabinet, and the existing pipetting robot.
 
 ## Open
 
@@ -17,6 +17,8 @@ With the lid open, remove the cover and unload tubes to remove the rotor. Remove
 The CO₂ incubator is available at `incubator.html`. Open its independent outer and glass doors, extend any of three shelves, and load or unload six sealed demonstration vessels. Retract shelves before closing the doors. Power and exposure affect a qualitative recovery indicator. The chamber does not implement biological processing or real environmental physics.
 
 The cabinet at `biosafety.html` has a sloped sliding sash, work light, blower and utility indicators, main power, a close-up chamber view, and an optional schematic airflow overlay. Status controls are illustrative and do not establish protective performance.
+
+The existing robot is now available at `pipetting-robot.html`, with its original interactions and generic labels. It uses the bundled renderer and joins the same gallery navigation. See `pipetting-robot-references.md`; this prototype has not yet been extracted into the modular model/state architecture.
 
 ## Reuse
 
