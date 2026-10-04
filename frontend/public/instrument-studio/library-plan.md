@@ -12,7 +12,7 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [x] Biosafety cabinet — visually reviewed; 30 state assertions passed; branch `feat/3d-biosafety-cabinet-studio`
 - [x] CO2 incubator — visually reviewed; 44 state assertions passed; branch `feat/3d-incubator-studio`
 - [x] Autoclave — visually reviewed; 27 state assertions and browser door-release cycle passed; branch `feat/3d-autoclave-studio`
-- [ ] Inverted microscope
+- [x] Inverted microscope — visually reviewed; 14 state assertions passed; branch `feat/3d-inverted-microscope-studio`
 - [ ] Laboratory refrigerator
 - [ ] Laboratory freezer
 - [x] Vortex mixer — visually reviewed; 24 state assertions and touch-mode browser checks passed; branch `feat/3d-vortex-studio`
@@ -64,3 +64,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-mini-centrifuge-studio` is based on the vortex branch and adds a compact twelve-position centrifuge.
 
 `feat/3d-manual-pipettes-studio` is based on the mini-centrifuge branch.
+
+`feat/3d-inverted-microscope-studio` is based on the manual-pipettes branch.
