@@ -7,7 +7,7 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [ ] Automated liquid-handling robot — existing prototype added to gallery and unbranded; conversion to reusable architecture remains
 - [ ] Manual pipettes
 - [x] Refrigerated benchtop centrifuge — visually reviewed; 25 state assertions passed; branch `feat/3d-centrifuge-studio`
-- [ ] Mini centrifuge
+- [x] Mini centrifuge — visually reviewed; 26 state assertions passed; branch `feat/3d-mini-centrifuge-studio`
 - [x] PCR thermocycler — visually reviewed; 36 state assertions passed; branch `feat/3d-thermocycler-studio`
 - [x] Biosafety cabinet — visually reviewed; 30 state assertions passed; branch `feat/3d-biosafety-cabinet-studio`
 - [x] CO2 incubator — visually reviewed; 44 state assertions passed; branch `feat/3d-incubator-studio`
@@ -60,3 +60,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-autoclave-studio` is based on the thermocycler branch. It adds the front-loading autoclave and a shared gallery/viewer for subsequent assets.
 
 `feat/3d-vortex-studio` is based on the autoclave branch and adds the seventh gallery entry.
+
+`feat/3d-mini-centrifuge-studio` is based on the vortex branch and adds a compact twelve-position centrifuge.
