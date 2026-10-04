@@ -16,8 +16,8 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [x] Laboratory refrigerator — visually reviewed; 15 state assertions and browser checks passed; branch `feat/3d-cold-storage-studio`
 - [x] Laboratory freezer — visually reviewed; 14 state assertions and browser checks passed; branch `feat/3d-cold-storage-studio`
 - [x] Vortex mixer — visually reviewed; 24 state assertions and touch-mode browser checks passed; branch `feat/3d-vortex-studio`
-- [ ] Analytical balance
-- [ ] pH meter
+- [x] Analytical balance — visually reviewed; 21 state assertions and tare browser check passed; branch `feat/3d-measurement-studio`
+- [x] pH meter — visually reviewed; 14 state assertions and probe/readout browser checks passed; branch `feat/3d-measurement-studio`
 - [ ] Magnetic stirrer / hotplate
 - [ ] Heating block or water bath (initial choice to be recorded after reference review)
 - [ ] Microplate reader or spectrophotometer (initial choice to be recorded after reference review)
@@ -68,3 +68,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-inverted-microscope-studio` is based on the manual-pipettes branch.
 
 `feat/3d-cold-storage-studio` is based on the inverted-microscope branch and adds separately referenced refrigerator and freezer assets.
+
+`feat/3d-measurement-studio` is based on the cold-storage branch and adds analytical balance and pH meter.

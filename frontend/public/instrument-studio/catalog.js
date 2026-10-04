@@ -18,3 +18,7 @@ window.LabCatalog.push({"id": "microscope", "title": "Inverted microscope", "cat
 window.LabCatalog.push({"id": "refrigerator", "title": "Laboratory refrigerator", "category": "Core instrument", "url": "equipment.html?id=refrigerator", "module": "instruments/refrigerator.js"});
 
 window.LabCatalog.push({"id": "freezer", "title": "Laboratory freezer", "category": "Core instrument", "url": "equipment.html?id=freezer", "module": "instruments/freezer.js"});
+
+window.LabCatalog.push({"id": "balance", "title": "Analytical balance", "category": "Core instrument", "url": "equipment.html?id=balance", "module": "instruments/balance.js"});
+
+window.LabCatalog.push({"id": "phmeter", "title": "pH meter", "category": "Core instrument", "url": "equipment.html?id=phmeter", "module": "instruments/phmeter.js"});
