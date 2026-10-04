@@ -14,3 +14,7 @@ window.LabCatalog.push({"id": "minicentrifuge", "title": "Mini centrifuge", "cat
 window.LabCatalog.push({"id": "pipettes", "title": "Manual pipettes", "category": "Core instrument", "url": "equipment.html?id=pipettes", "module": "instruments/pipettes.js"});
 
 window.LabCatalog.push({"id": "microscope", "title": "Inverted microscope", "category": "Core instrument", "url": "equipment.html?id=microscope", "module": "instruments/microscope.js"});
+
+window.LabCatalog.push({"id": "refrigerator", "title": "Laboratory refrigerator", "category": "Core instrument", "url": "equipment.html?id=refrigerator", "module": "instruments/refrigerator.js"});
+
+window.LabCatalog.push({"id": "freezer", "title": "Laboratory freezer", "category": "Core instrument", "url": "equipment.html?id=freezer", "module": "instruments/freezer.js"});

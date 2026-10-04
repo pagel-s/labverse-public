@@ -13,8 +13,8 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [x] CO2 incubator — visually reviewed; 44 state assertions passed; branch `feat/3d-incubator-studio`
 - [x] Autoclave — visually reviewed; 27 state assertions and browser door-release cycle passed; branch `feat/3d-autoclave-studio`
 - [x] Inverted microscope — visually reviewed; 14 state assertions passed; branch `feat/3d-inverted-microscope-studio`
-- [ ] Laboratory refrigerator
-- [ ] Laboratory freezer
+- [x] Laboratory refrigerator — visually reviewed; 15 state assertions and browser checks passed; branch `feat/3d-cold-storage-studio`
+- [x] Laboratory freezer — visually reviewed; 14 state assertions and browser checks passed; branch `feat/3d-cold-storage-studio`
 - [x] Vortex mixer — visually reviewed; 24 state assertions and touch-mode browser checks passed; branch `feat/3d-vortex-studio`
 - [ ] Analytical balance
 - [ ] pH meter
@@ -66,3 +66,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-manual-pipettes-studio` is based on the mini-centrifuge branch.
 
 `feat/3d-inverted-microscope-studio` is based on the manual-pipettes branch.
+
+`feat/3d-cold-storage-studio` is based on the inverted-microscope branch and adds separately referenced refrigerator and freezer assets.
