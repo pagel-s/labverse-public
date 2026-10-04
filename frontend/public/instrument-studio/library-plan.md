@@ -15,7 +15,7 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [ ] Inverted microscope
 - [ ] Laboratory refrigerator
 - [ ] Laboratory freezer
-- [ ] Vortex mixer
+- [x] Vortex mixer — visually reviewed; 24 state assertions and touch-mode browser checks passed; branch `feat/3d-vortex-studio`
 - [ ] Analytical balance
 - [ ] pH meter
 - [ ] Magnetic stirrer / hotplate
@@ -58,3 +58,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-thermocycler-studio` is based on the robot-gallery branch and contains five gallery entries, including the pre-existing robot prototype.
 
 `feat/3d-autoclave-studio` is based on the thermocycler branch. It adds the front-loading autoclave and a shared gallery/viewer for subsequent assets.
+
+`feat/3d-vortex-studio` is based on the autoclave branch and adds the seventh gallery entry.
