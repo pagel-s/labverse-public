@@ -2,6 +2,8 @@
 
 An unbranded, reference-grounded 3D asset library. Available models: refrigerated benchtop centrifuge, CO₂ incubator, biological safety cabinet, the existing pipetting robot, and a PCR thermocycler.
 
+The catalog is available at `gallery.html`. New instruments use `equipment.html?id=…` with a shared camera/UI, geometric helpers and independent instrument definitions in `instruments/`.
+
 ## Open
 
 Open `index.html` directly in a WebGL-capable browser, keeping this folder intact. The pinned Three.js library is bundled locally, so no internet connection is required.
