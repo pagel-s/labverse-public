@@ -8,10 +8,10 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [ ] Manual pipettes
 - [x] Refrigerated benchtop centrifuge — visually reviewed; 25 state assertions passed; branch `feat/3d-centrifuge-studio`
 - [ ] Mini centrifuge
-- [ ] PCR thermocycler (next)
+- [x] PCR thermocycler — visually reviewed; 36 state assertions passed; branch `feat/3d-thermocycler-studio`
 - [x] Biosafety cabinet — visually reviewed; 30 state assertions passed; branch `feat/3d-biosafety-cabinet-studio`
 - [x] CO2 incubator — visually reviewed; 44 state assertions passed; branch `feat/3d-incubator-studio`
-- [ ] Autoclave
+- [ ] Autoclave (next)
 - [ ] Inverted microscope
 - [ ] Laboratory refrigerator
 - [ ] Laboratory freezer
@@ -54,3 +54,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-biosafety-cabinet-studio` is based on the incubator branch and contains all three reviewed instruments. It adds cache versioning for shared scene changes and a cabinet close-up camera.
 
 `feat/gallery-pipetting-robot` adds the existing robot to the gallery, based on the biosafety-cabinet branch. Model/state modularization remains outstanding.
+
+`feat/3d-thermocycler-studio` is based on the robot-gallery branch and contains five gallery entries, including the pre-existing robot prototype.

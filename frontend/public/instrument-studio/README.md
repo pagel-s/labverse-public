@@ -1,6 +1,6 @@
 # LabVerse instrument studio
 
-An unbranded, reference-grounded 3D asset library. Available models: refrigerated benchtop centrifuge, CO₂ incubator, biological safety cabinet, and the existing pipetting robot.
+An unbranded, reference-grounded 3D asset library. Available models: refrigerated benchtop centrifuge, CO₂ incubator, biological safety cabinet, the existing pipetting robot, and a PCR thermocycler.
 
 ## Open
 
@@ -20,6 +20,8 @@ The cabinet at `biosafety.html` has a sloped sliding sash, work light, blower an
 
 The existing robot is now available at `pipetting-robot.html`, with its original interactions and generic labels. It uses the bundled renderer and joins the same gallery navigation. See `pipetting-robot-references.md`; this prototype has not yet been extracted into the modular model/state architecture.
 
+The thermocycler at `thermocycler.html` includes a hinged lid, removable covered plate, sample-block view, and a shortened run/pause/stop demonstration. It has no actual PCR temperature program or amplification model.
+
 ## Reuse
 
 - `instruments/centrifuge-model.js`: `createLabCentrifuge(THREE)` returns `{model, update, targets, slotTargets, materials}`. Add `model` to a shared scene and call `update(state, dt, options)` each frame.
@@ -29,6 +31,7 @@ The existing robot is now available at `pipetting-robot.html`, with its original
 - `instruments/incubator-state.js`: `LabIncubatorState`, with door, shelf, vessel and qualitative recovery state. `incubator.js` binds the controls, events and export.
 - `scene-core.js`: shared camera, lighting and orbit/view controls; it renders on change. Rigid incubator geometry is batched by material while moving assemblies remain separate.
 - `instruments/biosafety-model.js` and `biosafety-state.js`: `createLabBiosafetyCabinet(THREE)` and `LabBiosafetyState`; `biosafety.js` supplies UI bindings, state events, camera presets and export preparation.
+- `instruments/thermocycler-model.js` and `thermocycler-state.js`: `createLabThermocycler(THREE)` and `LabThermocyclerState`; `thermocycler.js` binds controls and emits state snapshots.
 - `model.userData` contains equipment type, scale conventions and interaction anchors.
 
 ## Test
@@ -37,6 +40,7 @@ The existing robot is now available at `pipetting-robot.html`, with its original
 node tests/centrifuge.test.mjs
 node tests/incubator.test.mjs
 node tests/biosafety.test.mjs
+node tests/thermocycler.test.mjs
 ```
 
 See `references.md`, `incubator-references.md` and `biosafety-references.md` for sources, modeled features and explicit limitations. See `library-plan.md` for the authorized library scope.
