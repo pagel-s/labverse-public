@@ -24,7 +24,7 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 
 ## Optional instruments, now in scope
 
-- [ ] Cell counter
+- [x] Cell counter — visually reviewed; 15 assertions and browser slide interlock/cycle passed; branch `feat/3d-cell-counter-studio`
 - [ ] Electrophoresis system and gel imager
 - [ ] Real-time PCR instrument
 - [ ] Orbital shaker / shaking incubator
@@ -72,3 +72,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-measurement-studio` is based on the cold-storage branch and adds analytical balance and pH meter.
 
 `feat/3d-thermal-and-reader-studio` is based on the measurement branch and adds hotplate, water bath and microplate reader. All 17 core types now have gallery entries; reusable robot conversion remains.
+
+`feat/3d-cell-counter-studio` is based on the thermal-and-reader branch and adds the first optional instrument.
