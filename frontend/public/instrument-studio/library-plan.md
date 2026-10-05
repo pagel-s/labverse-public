@@ -27,7 +27,7 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [x] Cell counter — visually reviewed; 15 assertions and browser slide interlock/cycle passed; branch `feat/3d-cell-counter-studio`
 - [ ] Electrophoresis system and gel imager
 - [ ] Real-time PCR instrument
-- [ ] Orbital shaker / shaking incubator
+- [x] Orbital shaker — selected open-platform variant; visually reviewed; 14 assertions, browser restraint/cycle checks and scene export passed; branch `feat/3d-orbital-shaker-studio`
 - [ ] Plate shaker
 - [ ] Plate sealer / seal remover
 - [ ] Robotic arm or plate transporter
@@ -74,3 +74,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-thermal-and-reader-studio` is based on the measurement branch and adds hotplate, water bath and microplate reader. All 17 core types now have gallery entries; reusable robot conversion remains.
 
 `feat/3d-cell-counter-studio` is based on the thermal-and-reader branch and adds the first optional instrument.
+
+`feat/3d-orbital-shaker-studio` is based on the cell-counter branch. Gallery count: 19.

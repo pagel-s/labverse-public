@@ -30,3 +30,5 @@ window.LabCatalog.push({"id": "waterbath", "title": "Water bath", "category": "C
 window.LabCatalog.push({"id": "reader", "title": "Microplate reader", "category": "Core instrument", "url": "equipment.html?id=reader", "module": "instruments/reader.js"});
 
 window.LabCatalog.push({"id": "cellcounter", "title": "Automated cell counter", "category": "Optional instrument", "url": "equipment.html?id=cellcounter", "module": "instruments/cellcounter.js"});
+
+window.LabCatalog.push({"id": "orbital", "title": "Orbital shaker", "category": "Optional instrument", "url": "equipment.html?id=orbital", "module": "instruments/orbital.js"});
