@@ -28,8 +28,8 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [ ] Electrophoresis system and gel imager
 - [ ] Real-time PCR instrument
 - [x] Orbital shaker — selected open-platform variant; visually reviewed; 14 assertions, browser restraint/cycle checks and scene export passed; branch `feat/3d-orbital-shaker-studio`
-- [ ] Plate shaker
-- [ ] Plate sealer / seal remover
+- [x] Plate shaker — four loading positions; visually reviewed; 22 state assertions and browser cycle/clamp checks passed; branch `feat/3d-plate-handling-studio`
+- [x] Plate sealer — selected heat-sealer variant with manual foil removal; visually reviewed; 18 assertions, browser drawer/cycle and export checks passed; branch `feat/3d-plate-handling-studio`
 - [ ] Robotic arm or plate transporter
 
 ## Supporting asset sets
@@ -76,3 +76,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-cell-counter-studio` is based on the thermal-and-reader branch and adds the first optional instrument.
 
 `feat/3d-orbital-shaker-studio` is based on the cell-counter branch. Gallery count: 19.
+
+`feat/3d-plate-handling-studio` is based on the orbital-shaker branch and adds a four-position microplate shaker and heat sealer. Gallery count: 21.

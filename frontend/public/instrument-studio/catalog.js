@@ -32,3 +32,7 @@ window.LabCatalog.push({"id": "reader", "title": "Microplate reader", "category"
 window.LabCatalog.push({"id": "cellcounter", "title": "Automated cell counter", "category": "Optional instrument", "url": "equipment.html?id=cellcounter", "module": "instruments/cellcounter.js"});
 
 window.LabCatalog.push({"id": "orbital", "title": "Orbital shaker", "category": "Optional instrument", "url": "equipment.html?id=orbital", "module": "instruments/orbital.js"});
+
+window.LabCatalog.push({"id": "plateshaker", "title": "Microplate shaker", "category": "Optional instrument", "url": "equipment.html?id=plateshaker", "module": "instruments/plateshaker.js"});
+
+window.LabCatalog.push({"id": "sealer", "title": "Microplate heat sealer", "category": "Optional instrument", "url": "equipment.html?id=sealer", "module": "instruments/sealer.js"});
