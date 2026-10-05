@@ -1,0 +1,3 @@
+import assert from 'node:assert/strict';import '../asset-tools.js';import '../equipment-state.js';import '../instruments/reader.js';
+const d=globalThis.LabEquipmentDefinitions.reader,s=d.state();let checks=0;const c=(a,b)=>{assert.deepEqual(a,b);checks++;};const a=id=>d.actions.find(x=>x.id===id).run(s);
+c(d.start(s),false);c(a('plate'),false);c(a('tray'),true);c(a('plate'),true);c(d.start(s),false);c(a('tray'),true);c(d.start(s),true);c(a('tray'),false);c(a('plate'),false);s.pause();c(s.paused,true);c(a('tray'),false);s.pause();for(let i=0;i<130;i++)s.tick(.1);c(s.phase,'complete');c(a('tray'),true);c(a('plate'),true);c(s.loaded,false);c(s.phase,'idle');c(a('tray'),true);c(d.start(s),false);console.log('Microplate reader: '+checks+' assertions passed');

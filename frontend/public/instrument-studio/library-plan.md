@@ -18,9 +18,9 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 - [x] Vortex mixer — visually reviewed; 24 state assertions and touch-mode browser checks passed; branch `feat/3d-vortex-studio`
 - [x] Analytical balance — visually reviewed; 21 state assertions and tare browser check passed; branch `feat/3d-measurement-studio`
 - [x] pH meter — visually reviewed; 14 state assertions and probe/readout browser checks passed; branch `feat/3d-measurement-studio`
-- [ ] Magnetic stirrer / hotplate
-- [ ] Heating block or water bath (initial choice to be recorded after reference review)
-- [ ] Microplate reader or spectrophotometer (initial choice to be recorded after reference review)
+- [x] Magnetic stirrer / hotplate — visually reviewed; 13 assertions and browser cooldown checks passed; branch `feat/3d-thermal-and-reader-studio`
+- [x] Water bath — initial thermal-bath choice; visually reviewed; 14 assertions and browser cycle passed; branch `feat/3d-thermal-and-reader-studio`
+- [x] Microplate reader — initial optical-reader choice; visually reviewed; 18 assertions and browser carrier-lock/cycle passed; branch `feat/3d-thermal-and-reader-studio`
 
 ## Optional instruments, now in scope
 
@@ -70,3 +70,5 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-cold-storage-studio` is based on the inverted-microscope branch and adds separately referenced refrigerator and freezer assets.
 
 `feat/3d-measurement-studio` is based on the cold-storage branch and adds analytical balance and pH meter.
+
+`feat/3d-thermal-and-reader-studio` is based on the measurement branch and adds hotplate, water bath and microplate reader. All 17 core types now have gallery entries; reusable robot conversion remains.

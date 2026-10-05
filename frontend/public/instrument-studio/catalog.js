@@ -22,3 +22,9 @@ window.LabCatalog.push({"id": "freezer", "title": "Laboratory freezer", "categor
 window.LabCatalog.push({"id": "balance", "title": "Analytical balance", "category": "Core instrument", "url": "equipment.html?id=balance", "module": "instruments/balance.js"});
 
 window.LabCatalog.push({"id": "phmeter", "title": "pH meter", "category": "Core instrument", "url": "equipment.html?id=phmeter", "module": "instruments/phmeter.js"});
+
+window.LabCatalog.push({"id": "hotplate", "title": "Magnetic stirrer / hotplate", "category": "Core instrument", "url": "equipment.html?id=hotplate", "module": "instruments/hotplate.js"});
+
+window.LabCatalog.push({"id": "waterbath", "title": "Water bath", "category": "Core instrument", "url": "equipment.html?id=waterbath", "module": "instruments/waterbath.js"});
+
+window.LabCatalog.push({"id": "reader", "title": "Microplate reader", "category": "Core instrument", "url": "equipment.html?id=reader", "module": "instruments/reader.js"});
