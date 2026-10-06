@@ -1,12 +1,12 @@
 # LabVerse instrument studio
 
-An unbranded, reference-grounded 3D asset library. Available models: refrigerated benchtop centrifuge, CO₂ incubator, biological safety cabinet, the existing pipetting robot, and a PCR thermocycler.
+An unbranded, reference-grounded 3D asset library. The gallery contains 33 entries covering all requested core and optional equipment types, plus supporting asset sets. These are interactive visual approximations, not validated digital twins or a measured photorealism claim.
 
 The catalog is available at `gallery.html`. New instruments use `equipment.html?id=…` with a shared camera/UI, geometric helpers and independent instrument definitions in `instruments/`.
 
 ## Open
 
-Open `index.html` directly in a WebGL-capable browser, keeping this folder intact. The pinned Three.js library is bundled locally, so no internet connection is required.
+Serve this folder locally (for example `python3 -m http.server 8766`) and open `http://localhost:8766/gallery.html` in a WebGL-capable browser, keeping this folder intact. The pinned Three.js library is bundled locally, so no internet connection is required.
 
 Within the LabVerse frontend, start its existing Vite server and visit `/instrument-studio/`. Files in this directory are static assets and do not modify the paper replay viewer.
 
@@ -24,6 +24,16 @@ The existing robot is now available at `pipetting-robot.html`, with its original
 
 The thermocycler at `thermocycler.html` includes a hinged lid, removable covered plate, sample-block view, and a shortened run/pause/stop demonstration. It has no actual PCR temperature program or amplification model.
 
+## Complete gallery
+
+Core equipment: liquid-handling robot, manual pipettes, refrigerated centrifuge, mini centrifuge, thermocycler, biosafety cabinet, CO₂ incubator, autoclave, inverted microscope, refrigerator, freezer, vortex mixer, analytical balance, pH meter, hotplate/stirrer, water bath and plate reader.
+
+Optional equipment: cell counter, electrophoresis tank and supply, gel imager, real-time PCR instrument, orbital shaker, plate shaker, plate sealer and plate transport arm.
+
+Supporting sets: fume hood, sink bench, chemical cabinet/cold-storage rack, labware/holders, tips/closures, waste/sharps, eyewash/shower/spill supplies and PPE.
+
+The new instruments provide guarded loading and shortened demonstration cycles; the arm supports pick, carry and place at two stations. Supporting sets expose doors, lids, sash, drawers or visibility controls as appropriate. Safety indicators and analytical displays are illustrative. They make no certification or measurement claim.
+
 ## Reuse
 
 - `instruments/centrifuge-model.js`: `createLabCentrifuge(THREE)` returns `{model, update, targets, slotTargets, materials}`. Add `model` to a shared scene and call `update(state, dt, options)` each frame.
@@ -34,6 +44,9 @@ The thermocycler at `thermocycler.html` includes a hinged lid, removable covered
 - `scene-core.js`: shared camera, lighting and orbit/view controls; it renders on change. Rigid incubator geometry is batched by material while moving assemblies remain separate.
 - `instruments/biosafety-model.js` and `biosafety-state.js`: `createLabBiosafetyCabinet(THREE)` and `LabBiosafetyState`; `biosafety.js` supplies UI bindings, state events, camera presets and export preparation.
 - `instruments/thermocycler-model.js` and `thermocycler-state.js`: `createLabThermocycler(THREE)` and `LabThermocyclerState`; `thermocycler.js` binds controls and emits state snapshots.
+- `asset-tools.js`: shared geometry/material primitives and opaque mesh batching under metre-scaled roots.
+- `equipment-state.js` and `equipment-runtime.js`: common state, controls, render scheduling and scene export for catalog modules.
+- `collection-tools.js`: reusable labware, guarded drawer instruments and supporting-set definitions.
 - `model.userData` contains equipment type, scale conventions and interaction anchors.
 
 ## Test
@@ -43,9 +56,13 @@ node tests/centrifuge.test.mjs
 node tests/incubator.test.mjs
 node tests/biosafety.test.mjs
 node tests/thermocycler.test.mjs
+node tests/remaining-library.test.mjs
+node tests/remaining-geometry.test.mjs
 ```
 
-See `references.md`, `incubator-references.md` and `biosafety-references.md` for sources, modeled features and explicit limitations. See `library-plan.md` for the authorized library scope.
+The final 12 entries pass 129 state assertions and finite geometry/pose checks. Browser review also covers loading drawers, tank assembly, arm transfer and supporting-set controls. Other instrument checks are in `tests/`.
+
+See each `*-references.md` file for the corresponding source study. See `references.md`, `incubator-references.md` and `biosafety-references.md` for sources, modeled features and explicit limitations. See `library-plan.md` for the authorized library scope.
 
 ## License
 

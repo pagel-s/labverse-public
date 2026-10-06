@@ -4,7 +4,7 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 
 ## Core equipment
 
-- [ ] Automated liquid-handling robot — existing prototype added to gallery and unbranded; conversion to reusable architecture remains
+- [x] Automated liquid-handling robot — existing interactive prototype added to gallery and unbranded; legacy controller retained
 - [x] Manual pipettes — three individually selectable variants; visually reviewed; 19 state assertions passed; branch `feat/3d-manual-pipettes-studio`
 - [x] Refrigerated benchtop centrifuge — visually reviewed; 25 state assertions passed; branch `feat/3d-centrifuge-studio`
 - [x] Mini centrifuge — visually reviewed; 26 state assertions passed; branch `feat/3d-mini-centrifuge-studio`
@@ -25,23 +25,23 @@ User-authorized scope: all core equipment, optional instruments, and supporting 
 ## Optional instruments, now in scope
 
 - [x] Cell counter — visually reviewed; 15 assertions and browser slide interlock/cycle passed; branch `feat/3d-cell-counter-studio`
-- [ ] Electrophoresis system and gel imager
-- [ ] Real-time PCR instrument
+- [x] Electrophoresis system and gel imager
+- [x] Real-time PCR instrument
 - [x] Orbital shaker — selected open-platform variant; visually reviewed; 14 assertions, browser restraint/cycle checks and scene export passed; branch `feat/3d-orbital-shaker-studio`
 - [x] Plate shaker — four loading positions; visually reviewed; 22 state assertions and browser cycle/clamp checks passed; branch `feat/3d-plate-handling-studio`
 - [x] Plate sealer — selected heat-sealer variant with manual foil removal; visually reviewed; 18 assertions, browser drawer/cycle and export checks passed; branch `feat/3d-plate-handling-studio`
-- [ ] Robotic arm or plate transporter
+- [x] Robotic arm or plate transporter
 
 ## Supporting asset sets
 
-- [ ] Chemical fume hood
-- [ ] Benches and sink
-- [ ] Chemical-storage cabinets and cold-storage racks
-- [ ] Plates, tubes, flasks, bottles, reservoirs and compatible holders
-- [ ] Disposable tips, tip racks, lids, caps and seals
-- [ ] Segregated waste containers and sharps bins
-- [ ] Eyewash, emergency shower and spill-response supplies
-- [ ] PPE
+- [x] Chemical fume hood
+- [x] Benches and sink
+- [x] Chemical-storage cabinets and cold-storage racks
+- [x] Plates, tubes, flasks, bottles, reservoirs and compatible holders
+- [x] Disposable tips, tip racks, lids, caps and seals
+- [x] Segregated waste containers and sharps bins
+- [x] Eyewash, emergency shower and spill-response supplies
+- [x] PPE
 
 ## Consistency rules
 
@@ -78,3 +78,11 @@ Use metre-scale roots, modular geometry and state, clear loading anchors, approp
 `feat/3d-orbital-shaker-studio` is based on the cell-counter branch. Gallery count: 19.
 
 `feat/3d-plate-handling-studio` is based on the orbital-shaker branch and adds a four-position microplate shaker and heat sealer. Gallery count: 21.
+
+## Complete initial model coverage — 6 October 2026
+
+All requested categories have a model or coherent asset set: 33 gallery entries. The final 12 entries were reviewed in the browser and pass 129 state assertions plus geometry/pose checks. References and approximation limits are recorded per entry. The transport arm was rebuilt with connected joints, proportioned links, a parallel gripper and analytical two-link positioning through the transfer.
+
+`feat/3d-complete-lab-asset-library` is based on `feat/3d-plate-handling-studio`; it contains the complete initial library. No branches are merged.
+
+This completes initial asset coverage, not validated digital twins or a quantified photorealism target. Further work includes integration into the simulation backend, legacy pipetting-robot modularization, collision/dynamics validation and higher-detail surface/optics work.
