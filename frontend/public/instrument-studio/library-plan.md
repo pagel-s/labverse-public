@@ -86,3 +86,21 @@ All requested categories have a model or coherent asset set: 33 gallery entries.
 `feat/3d-complete-lab-asset-library` is based on `feat/3d-plate-handling-studio`; it contains the complete initial library. No branches are merged.
 
 This completes initial asset coverage, not validated digital twins or a quantified photorealism target. Further work includes integration into the simulation backend, legacy pipetting-robot modularization, collision/dynamics validation and higher-detail surface/optics work.
+
+## Continuation audit — 21 October 2026
+
+The checklist above records initial category coverage, not proof that every
+shared-interface requirement is finished. The pipetting robot's state module has
+now been extracted and tested; browser verification and reusable metre-scale
+model extraction remain open. No completion claim or new completed-build upload
+is made for this in-progress revision. Existing geometry references are retained.
+
+The subsequent extraction completed the reusable metre-scale robot model and
+connected the gallery animation to its `update` method. All 24 library test files
+pass. Remaining acceptance for this revision: visual interaction review and upload
+to a fresh `pagel-s/labverse-public` branch. GitHub authentication is invalid and
+browser inventory is empty; no completion claim is made.
+
+### Snapshot acceptance hardening — 2026-10-21
+- Preserved door interlocks when restoring parked robot snapshots. Rejected active-motion snapshots, incompatible schemas, wrong equipment types and malformed door states without partial mutation. Legacy idle quantity snapshots remain supported.
+- Re-ran all 24 library test files successfully. Browser inventory is empty, so visual acceptance remains pending. GitHub authentication reports an invalid token; publication remains pending.

@@ -67,3 +67,19 @@ See each `*-references.md` file for the corresponding source study. See `referen
 ## License
 
 Original model and studio source follow the parent repository's MIT license. Three.js r128 is included under its MIT license in `vendor/three.LICENSE`. Manufacturer reference imagery is not included.
+
+## Pipetting robot reusable interface
+
+Load `instruments/pipetting-robot-state.js` and
+`instruments/pipetting-robot-model.js`, then construct `LabPipettingRobotState`
+and `createLabPipettingRobot(THREE)`. Add the returned `model` directly to a
+metre-scale scene. Pass head coordinates in metres to
+`update(state, dt, {position: {x, y, z}})`. Geometry construction uses millimetres
+under a 0.001 root scale, matching the other standalone library instruments.
+
+The gallery retains its old camera framing through a display-only wrapper.
+Snapshots preserve volumes and tip custody; `restore` rejects inconsistent
+quantities. The door interlock is conceptual, not real hardware safety control.
+Run `tests/pipetting-robot.test.mjs` and `tests/pipetting-robot-geometry.test.mjs`.
+This revision passed software checks; browser verification and publication are
+pending restoration of browser and GitHub access.

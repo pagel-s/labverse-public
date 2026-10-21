@@ -60,3 +60,5 @@ window.LabCatalog.push({"id": "waste", "title": "Segregated waste and sharps", "
 window.LabCatalog.push({"id": "emergency", "title": "Eyewash, shower and spill kit", "category": "Supporting asset set", "url": "equipment.html?id=emergency", "module": "instruments/emergency.js"});
 
 window.LabCatalog.push({"id": "ppe", "title": "Personal protective equipment", "category": "Supporting asset set", "url": "equipment.html?id=ppe", "module": "instruments/ppe.js"});
+
+window.LabCatalog.push({id:'portrait-rotavap',title:'Portrait rotary evaporator',category:'Experimental instrument',url:'portrait-rotavap/index.html'});
